@@ -1,0 +1,70 @@
+package me.melontini.flightpanel.impl;
+
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import me.melontini.flightpanel.api.builders.ConfigScreenBuilder;
+import me.melontini.flightpanel.api.generators.ElementGenerator;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.option.OptionsScreen;
+import net.minecraft.text.Text;
+import org.apache.commons.compress.utils.Lists;
+
+import java.util.List;
+import java.util.Optional;
+
+import static me.melontini.flightpanel.api.generators.Transformations.*;
+
+public class TestInit implements ClientModInitializer {
+
+    private static final RealConfig CONFIG = new RealConfig();
+
+    @Override
+    public void onInitializeClient() {
+        ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            if (screen.getClass() == OptionsScreen.class && Screen.hasShiftDown() && Screen.hasAltDown()) {
+                var sb = ConfigScreenBuilder.create()
+                        .title(Text.literal("NEVER GONNA GIVE YOU UP"))
+                        .saveFunction(() -> System.out.println(CONFIG));
+                sb.category(Text.literal("default")).addAll(ElementGenerator.generateForObject("test.flight-panel.config.", CONFIG, RealConfig::new, Optional.empty()));
+
+                System.out.println(CONFIG);
+                client.setScreen(sb.build());
+            }
+        });
+    }
+
+    @ToString
+    @EqualsAndHashCode
+    public static class RealConfig {
+        public int anInt = 12;
+        public @Range(from = 0.125478, to = 0.23456) float aFloat = 0.21f;
+        public @Slider @Range(from = -0.1, to = 0.4) double aDouble = 0.3;
+        public List<List<@Slider @Range(from = -3, to = 14) Integer>> nestedIntegers = List.of(List.of(3, 14), List.of(1));
+        public List<Integer> integers = List.of(12, 34, 56, 78);
+        public boolean aBoolean = true;
+        public String aString = "Hello World!";
+
+        public List<@Collapsible InnerObj> innerObjs = Lists.newArrayList();
+    }
+
+    @EqualsAndHashCode
+    @ToString
+    public static class InnerObj {
+        public @Collapsible MoreInner value = new MoreInner();
+    }
+
+    @EqualsAndHashCode
+    @ToString
+    public static class MoreInner {
+        public @Collapsible Innerer value = new Innerer();
+    }
+
+    @EqualsAndHashCode
+    @ToString
+    public static class Innerer {
+        public int value = 9;
+        public @Slider @Range(from = 0.1, to = 0.2) float slydee = 0.1f;
+    }
+}
