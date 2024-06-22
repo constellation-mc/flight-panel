@@ -1,11 +1,17 @@
+import com.github.spotbugs.snom.SpotBugsTask
+
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    alias libs.plugins.fabric.loom
     id 'maven-publish'
-    id "io.freefair.lombok" version "8.6"
-    id "com.diffplug.spotless" version "6.25.0"
+    alias libs.plugins.lombok
+    alias libs.plugins.spotbugs.base
+    alias libs.plugins.spotless
+    alias libs.plugins.modmuss50.publish
 }
 
-version = project.mod_version
+def local = !System.getenv().containsKey("GITHUB_RUN_NUMBER")
+
+version = "${project.mod_version}-${project.minecraft_version}-${local ? 'local' : "build.${System.getenv("GITHUB_RUN_NUMBER")}"}"
 group = project.maven_group
 
 base {
@@ -27,11 +33,39 @@ dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation libs.fabric.loader
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modApi(include("me.melontini:dark-matter-base:4.0.0-1.20.1-build.481"))
+    modImplementation libs.fabric.api
+    def dm = libs.dark.matter
+    [dm.base].each {
+        modApi it
+        include it
+    }
+}
+
+tasks.register("spotbugs", SpotBugsTask) { task ->
+    sourceSets.each {
+        task.sourceDirs.from(task.sourceDirs.files, it.allSource.sourceDirectories)
+        task.classDirs.from(task.classDirs.files, it.output)
+        task.auxClassPaths.from(task.auxClassPaths.files, it.compileClasspath)
+    }
+    excludeFilter = file("spotbugs.xml")
+    ignoreFailures = true
+    reports {
+        if (local) {
+            html {
+                required = true
+                outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+                stylesheet = 'fancy-hist.xsl'
+            }
+        } else {
+            sarif {
+                required = true
+                outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.sarif")
+            }
+        }
+    }
 }
 
 spotless {
@@ -44,15 +78,17 @@ spotless {
 }
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
+    def map = [
+            "version": project.version,
+            "minecraft_version": project.minecraft_version,
+            "loader_version": libs.fabric.loader.get().version,
+            "fabric_version": libs.fabric.api.get().version
+    ]
+    inputs.properties(map)
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+        expand map
     }
 }
 
@@ -103,9 +139,13 @@ publishing {
 
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/constellation-mc/andromeda"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }

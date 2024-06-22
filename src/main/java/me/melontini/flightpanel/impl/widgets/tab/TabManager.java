@@ -16,8 +16,7 @@ public class TabManager {
 
 	private Consumer<Text> onTabSelect;
 
-	@Nullable
-	private Text currentTab;
+	@Nullable private Text currentTab;
 
 	public TabManager(Consumer<Text> onTabSelect) {
 		this.onTabSelect = onTabSelect;
@@ -34,8 +33,7 @@ public class TabManager {
 		}
 	}
 
-	@Nullable
-	public Text getCurrentTab() {
+	@Nullable public Text getCurrentTab() {
 		return this.currentTab;
 	}
 }

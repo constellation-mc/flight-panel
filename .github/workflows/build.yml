@@ -1,0 +1,12 @@
+
+name: build
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    uses: constellation-mc/actions/.github/workflows/gradle-build.yml@main
+    with:
+      java: 17
+      gradle_tasks: spotbugs
+      reviewdog: |
+        cat ./build/reports/spotbugs/main/spotbugs.sarif | reviewdog -name="spotbugs" -f=sarif -reporter=github-check -level=warning

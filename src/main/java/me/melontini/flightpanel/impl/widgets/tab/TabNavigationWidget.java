@@ -67,8 +67,7 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 		}
 	}
 
-	@Nullable
-	@Override
+	@Nullable @Override
 	public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
 		if (!this.isFocused()) {
 			TabButtonWidget tabButtonWidget = this.getCurrentTabButton();
@@ -186,8 +185,7 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 		return i != -1 ? i : -1;
 	}
 
-	@Nullable
-	private TabButtonWidget getCurrentTabButton() {
+	@Nullable private TabButtonWidget getCurrentTabButton() {
 		int i = this.getCurrentTabIndex();
 		return i != -1 ? this.tabButtons.get(i) : null;
 	}
