@@ -1,5 +1,6 @@
 package me.melontini.flightpanel.impl;
 
+import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.builders.CategoryBuilder;
@@ -8,19 +9,24 @@ import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.impl.util.ConfigScreenProxy;
 import me.melontini.flightpanel.impl.widgets.ConfigElementListWidget;
 import me.melontini.flightpanel.impl.widgets.OptionInfoWidget;
+import me.melontini.flightpanel.impl.widgets.tab.TabManager;
+import me.melontini.flightpanel.impl.widgets.tab.TabNavigationWidget;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,9 +45,10 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     private final Runnable saveFunction;
 
     private final Map<Text, ConfigElementListWidget> categories;
-    //private final List<Text> indexedCategories;
     private final Collection<AbstractConfigElement<?, ?>> allChildren;
 
+    private final TabManager tabManager;
+    private TabNavigationWidget navigationWidget;
     private ButtonWidget saveAndExit;
     private OptionInfoWidget optionInfoWidget;
 
@@ -49,21 +56,31 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     boolean edited = false;
     boolean erroring = false;
 
-    public ConfigScreen(Text title, Screen parent, Collection<CategoryBuilder> children, Runnable saveFunction) {
+    public ConfigScreen(Text title, Screen parent, Map<Text, CategoryBuilder> children, Runnable saveFunction) {
         super(title);
         this.parent = parent;
         this.saveFunction = saveFunction;
 
-        this.categories = children.stream().collect(Collectors.toMap(CategoryBuilder::title, b -> new ConfigElementListWidget(b.stream().<AbstractConfigElement<?, ?>>map(BaseElementBuilder::build).toList())));
-        //this.indexedCategories = this.categories.keySet().stream().toList();
+        this.categories = new LinkedHashMap<>(Maps.transformValues(children, input -> new ConfigElementListWidget(input.build().stream().<AbstractConfigElement<?, ?>>map(BaseElementBuilder::build).toList())));
         this.allChildren = this.categories.values().stream().flatMap(w -> w.children().stream()).collect(Collectors.toUnmodifiableList());
         this.currentCategory = this.categories.values().stream().findFirst().orElseThrow(() -> new RuntimeException("Config screens must contain at least 1 category!"));
+
+        this.tabManager = new TabManager(text -> {
+            this.remove(this.currentCategory);
+            this.currentCategory = this.categories.get(text);
+            this.addDrawableChild(this.currentCategory);
+            this.currentCategory.rebuildPositions();
+        });
     }
 
     @Override
     public void init() {
         int wHeight = client.getWindow().getScaledHeight();
         int wWidth = client.getWindow().getScaledWidth();
+
+        this.navigationWidget = TabNavigationWidget.builder(this.tabManager, getViewBoxWidth())
+                .tabs(this.categories.keySet().toArray(Text[]::new))
+                .build();
 
         for (ConfigElementListWidget value : this.categories.values()) {
             value.dimensions(0, getHeaderSize(), getViewBoxWidth(), wHeight - getFooterSize() - getHeaderSize());
@@ -91,10 +108,13 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
         if (this.optionInfoWidget != null) optionInfo.display(this.optionInfoWidget.display());
         this.optionInfoWidget = optionInfo;
 
+        this.addDrawableChild(this.navigationWidget);
         this.addDrawableChild(this.currentCategory);
         this.addDrawableChild(this.saveAndExit);
         this.addDrawableChild(this.optionInfoWidget);
 
+        this.navigationWidget.selectTab(0, false);
+        this.navigationWidget.init();
         this.updateWidgets();
     }
 
@@ -106,18 +126,20 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackgroundTexture(context);
+        context.drawTexture(CreateWorldScreen.FOOTER_SEPARATOR_TEXTURE, 0, MathHelper.roundUpToMultiple(this.height - getFooterSize() - 2, 2), 0.0F, 0.0F, this.width, 2, 32, 2);
         super.render(context, mouseX, mouseY, delta);
+        context.drawTexture(CreateWorldScreen.HEADER_SEPARATOR_TEXTURE, 0, 24 - 2, 0.0F, 0.0F, this.width, 2, 32, 2);
 
-        int hrStart = ColorUtil.toColor(255, 255, 255, 50);
-        int hrEnd = ColorUtil.toColor(255, 255, 255, 125);
-        int halfWidth = client.getWindow().getScaledWidth() / 2;
+        //int hrStart = ColorUtil.toColor(255, 255, 255, 50);
+        //int hrEnd = ColorUtil.toColor(255, 255, 255, 125);
+        //int halfWidth = client.getWindow().getScaledWidth() / 2;
 
-        fillGradientHorizontal(context.getMatrices(), 0, getHeaderSize() - 1, halfWidth, getHeaderSize(), hrStart, hrEnd);
-        fillGradientHorizontal(context.getMatrices(), halfWidth, getHeaderSize() - 1, client.getWindow().getScaledWidth(), getHeaderSize(), hrEnd, hrStart);
-        fillGradientHorizontal(context.getMatrices(), 0, client.getWindow().getScaledHeight() - getFooterSize(), halfWidth, client.getWindow().getScaledHeight() - getFooterSize() + 1, hrStart, hrEnd);
-        fillGradientHorizontal(context.getMatrices(), halfWidth, client.getWindow().getScaledHeight() - getFooterSize(), client.getWindow().getScaledWidth(), client.getWindow().getScaledHeight() - getFooterSize() + 1, hrEnd, hrStart);
+        //fillGradientHorizontal(context.getMatrices(), 0, getHeaderSize() - 1, halfWidth, getHeaderSize(), hrStart, hrEnd);
+        //fillGradientHorizontal(context.getMatrices(), halfWidth, getHeaderSize() - 1, client.getWindow().getScaledWidth(), getHeaderSize(), hrEnd, hrStart);
+        //fillGradientHorizontal(context.getMatrices(), 0, client.getWindow().getScaledHeight() - getFooterSize(), halfWidth, client.getWindow().getScaledHeight() - getFooterSize() + 1, hrStart, hrEnd);
+        //fillGradientHorizontal(context.getMatrices(), halfWidth, client.getWindow().getScaledHeight() - getFooterSize(), client.getWindow().getScaledWidth(), client.getWindow().getScaledHeight() - getFooterSize() + 1, hrEnd, hrStart);
 
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, (getHeaderSize() / 2) - 3, 16777215);
+        if (this.categories.size() <= 1) context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 12 - 4, 16777215);
 
         if (this.erroring && saveAndExit.visible
                 && mouseX >= saveAndExit.getX()
@@ -141,7 +163,7 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     }
 
     public int getHeaderSize() {
-        return 26;
+        return 24;
     }
 
     public int getFooterSize() {
@@ -170,7 +192,7 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
 
     @Override
     public List<? extends Element> children() {
-        return List.of(this.currentCategory, this.saveAndExit, this.optionInfoWidget);
+        return List.of(this.navigationWidget, this.currentCategory, this.saveAndExit, this.optionInfoWidget);
     }
 
     public static void fillGradientHorizontal(MatrixStack matrices, int startX, int startY, int endX, int endY, int colorStart, int colorEnd) {

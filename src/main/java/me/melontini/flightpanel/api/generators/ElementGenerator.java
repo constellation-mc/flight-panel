@@ -9,13 +9,13 @@ import me.melontini.flightpanel.impl.generators.CollapsibleObjectProviderFactory
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ElementGenerator {
 
-    public static <T> @Unmodifiable @NotNull Collection<BaseElementBuilder<?, ?, ?>> generateForObject(String i18n, @NonNull T obj, Supplier<@NotNull T> defSupplier, Optional<GuiRegistry> reg) {
+    public static <T> @Unmodifiable @NotNull List<BaseElementBuilder<?, ?, ?>> generateForObject(String i18n, @NonNull T obj, Supplier<@NotNull T> defSupplier, Optional<GuiRegistry> reg) {
         GuiRegistry registry = reg.orElseGet(GuiRegistry::withDefaults);
         if (i18n.endsWith(".")) i18n = i18n.substring(0, i18n.length() - 1);
 

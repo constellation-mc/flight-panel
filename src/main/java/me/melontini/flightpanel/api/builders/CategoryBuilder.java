@@ -13,7 +13,7 @@ public class CategoryBuilder implements List<BaseElementBuilder<?, ?, ?>> {
     private final List<BaseElementBuilder<?, ?, ?>> list = new ArrayList<>();
 
     public CategoryBuilder(Text text) {
-        this.title = text.copy();
+        this.title = text;
     }
 
     public CategoryBuilder addElement(BaseElementBuilder<?, ?, ?> abstractConfigElement) {
