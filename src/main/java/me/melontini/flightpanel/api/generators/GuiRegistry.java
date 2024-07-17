@@ -1,16 +1,22 @@
 package me.melontini.flightpanel.api.generators;
 
+import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
 import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
+import me.melontini.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
+import me.melontini.flightpanel.impl.generators.CollapsibleObjectProviderFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class GuiRegistry implements GuiProviderFactory, GuiFieldTransformer {
 
@@ -34,6 +40,14 @@ public class GuiRegistry implements GuiProviderFactory, GuiFieldTransformer {
     private final Set<GuiFieldTransformer> fieldTransformers = new LinkedHashSet<>();
 
     private GuiRegistry() {}
+
+    public <T> @Unmodifiable @NotNull List<BaseElementBuilder<?, ?, ?>> generateForObject(String i18n, @NonNull T obj, Supplier<@NotNull T> defSupplier) {
+        if (i18n.endsWith(".")) i18n = i18n.substring(0, i18n.length() - 1);
+
+        var entryContext = new ProviderContext(i18n, false, this);
+        var factory = CollapsibleObjectProviderFactory.forAnyObject(this, (Class<T>) obj.getClass());
+        return ImmutableList.copyOf(factory.provideGui(obj, defSupplier, entryContext).dataOrThrow(CollapsibleObjectBuilder.ELEMENTS));
+    }
 
     public void registerProviderFactory(@NonNull GuiProviderFactory factory) {
         this.factories.add(factory);

@@ -1,4 +1,4 @@
-package me.melontini.flightpanel.api.generators;
+package me.melontini.flightpanel.api.generators.context;
 
 import lombok.With;
 

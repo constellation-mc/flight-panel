@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import me.melontini.flightpanel.api.builders.ConfigScreenBuilder;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
-import me.melontini.flightpanel.api.generators.ElementGenerator;
+import me.melontini.flightpanel.api.generators.GuiRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.gui.screen.Screen;
@@ -13,7 +13,6 @@ import net.minecraft.client.gui.screen.option.OptionsScreen;
 import net.minecraft.text.Text;
 
 import java.util.List;
-import java.util.Optional;
 
 import static me.melontini.flightpanel.api.generators.Transformations.*;
 
@@ -29,7 +28,7 @@ public class TestInit implements ClientModInitializer {
                         .title(Text.literal("NEVER GONNA GIVE YOU UP"))
                         .saveFunction(() -> System.out.println(CONFIG));
 
-                List<List<BaseElementBuilder<?, ?, ?>>> partition = Lists.partition(ElementGenerator.generateForObject("test.flight-panel.config.", CONFIG, RealConfig::new, Optional.empty()), 5);
+                List<List<BaseElementBuilder<?, ?, ?>>> partition = Lists.partition(GuiRegistry.withDefaults().generateForObject("test.flight-panel.config.", CONFIG, RealConfig::new), 5);
                 for (int i = 0; i < partition.size(); i++) {
                     List<BaseElementBuilder<?, ?, ?>> builders = partition.get(i);
                     sb.category(Text.literal("default " + i)).addAll(builders);
