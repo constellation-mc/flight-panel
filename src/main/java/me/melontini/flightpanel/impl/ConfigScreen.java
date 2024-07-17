@@ -3,6 +3,7 @@ package me.melontini.flightpanel.impl;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.melontini.dark_matter.api.base.util.ColorUtil;
+import me.melontini.dark_matter.api.base.util.MakeSure;
 import me.melontini.flightpanel.api.builders.CategoryBuilder;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
@@ -33,13 +34,21 @@ import java.util.stream.Collectors;
 
 public class ConfigScreen extends Screen implements ConfigScreenProxy {
 
-    private static final Text SAVE_LABEL = Text.translatable("service.flight-panel.widget.save_and_exit");
-    private static final Text SAVE_ERROR_TITLE = Text.translatable("service.flight-panel.widget.save_and_exit.error.title");
-    private static final Text SAVE_ERROR_DESC = Text.translatable("service.flight-panel.widget.save_and_exit.error.description").formatted(Formatting.GRAY);
-    private static final Text REQ_RESTART_TITLE = Text.translatable("service.flight-panel.screen.restart_required.title");
-    private static final Text REQ_RESTART_MSG = Text.translatable("service.flight-panel.screen.restart_required.message");
-    private static final Text REQ_RESTART_Y = Text.translatable("service.flight-panel.screen.restart_required.yes");
-    private static final Text REQ_RESTART_N = Text.translatable("service.flight-panel.screen.restart_required.no");
+    private static final Text SAVE_LABEL = Text.translatable("service.flight-panel.widget.save");
+    private static final Text SAVE_ERROR_TITLE = Text.translatable("service.flight-panel.widget.save.error.title");
+    private static final Text SAVE_ERROR_DESC = Text.translatable("service.flight-panel.widget.save.error.description").formatted(Formatting.GRAY);
+
+    private static final Text BACK_LABEL = Text.translatable("service.flight-panel.widget.back");
+
+    private static final Text CHANGES_TITLE = Text.translatable("service.flight-panel.screen.unsaved_changes.title");
+    private static final Text CHANGES_MSG = Text.translatable("service.flight-panel.screen.unsaved_changes.message");
+    private static final Text CHANGES_YES = Text.translatable("service.flight-panel.screen.unsaved_changes.yes");
+    private static final Text CHANGES_NO = Text.translatable("service.flight-panel.screen.unsaved_changes.no");
+
+    private static final Text RESTART_TITLE = Text.translatable("service.flight-panel.screen.restart_required.title");
+    private static final Text RESTART_MSG = Text.translatable("service.flight-panel.screen.restart_required.message");
+    private static final Text RESTART_YES = Text.translatable("service.flight-panel.screen.restart_required.yes");
+    private static final Text RESTART_NO = Text.translatable("service.flight-panel.screen.restart_required.no");
 
     private final Screen parent;
     private final Runnable saveFunction;
@@ -49,12 +58,14 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
 
     private final TabManager tabManager;
     private TabNavigationWidget navigationWidget;
-    private ButtonWidget saveAndExit;
+    private ButtonWidget backWidget;
+    private ButtonWidget saveWidget;
     private OptionInfoWidget optionInfoWidget;
 
     private ConfigElementListWidget currentCategory;
     boolean edited = false;
     boolean erroring = false;
+    boolean requiresRestart = false;
 
     public ConfigScreen(Text title, Screen parent, Map<Text, CategoryBuilder> children, Runnable saveFunction) {
         super(title);
@@ -87,22 +98,21 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
             value.rebuildPositions();
         }
 
+        int backLabelWidth = client.textRenderer.getWidth(BACK_LABEL);
+        this.backWidget = ButtonWidget.builder(BACK_LABEL, button -> this.close())
+                .position(3, getViewBoxBottom() + 3)
+                .size(backLabelWidth + 16, 20)
+                .build();
+
         int saveLabelWidth = client.textRenderer.getWidth(SAVE_LABEL);
-        this.saveAndExit = ButtonWidget.builder(SAVE_LABEL, button -> {
+        this.saveWidget = ButtonWidget.builder(SAVE_LABEL, button -> {
+            if (!this.requiresRestart) this.requiresRestart = this.allChildren.stream().anyMatch(e -> e.requiresRestart() && e.modified());
+
             this.allChildren.forEach(AbstractConfigElement::save);
             this.saveFunction.run();
-
-            for (AbstractConfigElement<?, ?> child : this.allChildren) {
-                if (!child.requiresRestart() || !child.modified()) continue;
-                this.client.setScreen(new ConfirmScreen(t -> {
-                    if (t) this.client.scheduleStop();
-                    else this.client.setScreen(this.parent);
-                }, REQ_RESTART_TITLE, REQ_RESTART_MSG, REQ_RESTART_Y, REQ_RESTART_N));
-                return;
-            }
-            this.client.setScreen(this.parent);
-        }).position(3, getViewBoxBottom() + 3).size(saveLabelWidth + 16, 20).build();
-        this.saveAndExit.active = false;
+        }).position(3 + backLabelWidth + 16 + 3, getViewBoxBottom() + 3)
+                .size(saveLabelWidth + 16, 20).build();
+        this.saveWidget.active = false;
 
         var optionInfo = new OptionInfoWidget(getViewBoxWidth(), getHeaderSize(), wWidth - getViewBoxWidth(), wWidth - getFooterSize() - getHeaderSize());
         if (this.optionInfoWidget != null) optionInfo.display(this.optionInfoWidget.display());
@@ -110,7 +120,8 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
 
         this.addDrawableChild(this.navigationWidget);
         this.addDrawableChild(this.currentCategory);
-        this.addDrawableChild(this.saveAndExit);
+        this.addDrawableChild(this.backWidget);
+        this.addDrawableChild(this.saveWidget);
         this.addDrawableChild(this.optionInfoWidget);
 
         this.navigationWidget.selectTab(0, false);
@@ -119,33 +130,28 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     }
 
     private void updateWidgets() {
-        this.saveAndExit.active = this.edited && !this.erroring;
-        this.saveAndExit.setMessage(erroring ? SAVE_LABEL.copy().formatted(Formatting.RED) : SAVE_LABEL);
+        this.saveWidget.active = this.edited && !this.erroring;
+        this.saveWidget.setMessage(erroring ? SAVE_LABEL.copy().formatted(Formatting.RED) : SAVE_LABEL);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackgroundTexture(context);
+
+        context.fill(0, 0, this.width, getHeaderSize(), ColorUtil.toColor(0, 0, 0, 130));
+        context.fill(0, getViewBoxBottom(), this.width, this.height, ColorUtil.toColor(0, 0, 0, 130));
+
         context.drawTexture(CreateWorldScreen.FOOTER_SEPARATOR_TEXTURE, 0, MathHelper.roundUpToMultiple(this.height - getFooterSize() - 2, 2), 0.0F, 0.0F, this.width, 2, 32, 2);
         super.render(context, mouseX, mouseY, delta);
         context.drawTexture(CreateWorldScreen.HEADER_SEPARATOR_TEXTURE, 0, 24 - 2, 0.0F, 0.0F, this.width, 2, 32, 2);
 
-        //int hrStart = ColorUtil.toColor(255, 255, 255, 50);
-        //int hrEnd = ColorUtil.toColor(255, 255, 255, 125);
-        //int halfWidth = client.getWindow().getScaledWidth() / 2;
-
-        //fillGradientHorizontal(context.getMatrices(), 0, getHeaderSize() - 1, halfWidth, getHeaderSize(), hrStart, hrEnd);
-        //fillGradientHorizontal(context.getMatrices(), halfWidth, getHeaderSize() - 1, client.getWindow().getScaledWidth(), getHeaderSize(), hrEnd, hrStart);
-        //fillGradientHorizontal(context.getMatrices(), 0, client.getWindow().getScaledHeight() - getFooterSize(), halfWidth, client.getWindow().getScaledHeight() - getFooterSize() + 1, hrStart, hrEnd);
-        //fillGradientHorizontal(context.getMatrices(), halfWidth, client.getWindow().getScaledHeight() - getFooterSize(), client.getWindow().getScaledWidth(), client.getWindow().getScaledHeight() - getFooterSize() + 1, hrEnd, hrStart);
-
         if (this.categories.size() <= 1) context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 12 - 4, 16777215);
 
-        if (this.erroring && saveAndExit.visible
-                && mouseX >= saveAndExit.getX()
-                && mouseX <= saveAndExit.getX() + saveAndExit.getWidth()
-                && mouseY >= saveAndExit.getY()
-                && mouseY <= saveAndExit.getY() + saveAndExit.getHeight()) {
+        if (this.erroring && saveWidget.visible
+                && mouseX >= saveWidget.getX()
+                && mouseX <= saveWidget.getX() + saveWidget.getWidth()
+                && mouseY >= saveWidget.getY()
+                && mouseY <= saveWidget.getY() + saveWidget.getHeight()) {
             context.drawTooltip(client.textRenderer, List.of(SAVE_ERROR_TITLE, SAVE_ERROR_DESC), mouseX, mouseY);
         }
     }
@@ -192,7 +198,33 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
 
     @Override
     public List<? extends Element> children() {
-        return List.of(this.navigationWidget, this.currentCategory, this.saveAndExit, this.optionInfoWidget);
+        return List.of(this.navigationWidget, this.currentCategory,
+                this.backWidget, this.saveWidget,
+                this.optionInfoWidget);
+    }
+
+    @Override
+    public void close() {
+        MakeSure.notNull(client);
+
+        if (this.allChildren.stream().anyMatch(AbstractConfigElement::modified)) {
+            this.client.setScreen(new ConfirmScreen(response -> {
+                if (response) {
+                    this.saveWidget.onPress();
+                    this.close();// We have to check requiresRestart
+                } else this.client.setScreen(this.parent);
+            }, CHANGES_TITLE, CHANGES_MSG, CHANGES_YES, CHANGES_NO));
+            return;
+        }
+
+        if (this.requiresRestart) {
+            this.client.setScreen(new ConfirmScreen(response -> {
+                if (response) this.client.scheduleStop();
+                else this.client.setScreen(this.parent);
+            }, RESTART_TITLE, RESTART_MSG, RESTART_YES, RESTART_NO));
+            return;
+        }
+        this.client.setScreen(this.parent);
     }
 
     public static void fillGradientHorizontal(MatrixStack matrices, int startX, int startY, int endX, int endY, int colorStart, int colorEnd) {

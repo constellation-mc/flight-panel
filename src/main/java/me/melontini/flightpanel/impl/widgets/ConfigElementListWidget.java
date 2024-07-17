@@ -54,12 +54,11 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
         for (AbstractConfigElement<?, ?> child : this.children()) {
             if (child.pos().withHeight(child.getElementHeight()).intersects(wd)) visibleChildren.add(child);
         }
-        //System.out.printf("%s %s%n", this.visibleChildren.size(), this.children.size());
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(x, y, x + width, y + height, ColorUtil.toColor(0, 0, 0, 100));
+        context.fill(x, y, x + width, y + height, ColorUtil.toColor(0, 0, 0, 90));
 
         if (this.maxScrollPos > 0) {
             int scroller = MathHelper.clamp((height * height) / this.maxScrollPos, height / 4, height / 2);

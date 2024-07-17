@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 @Accessors(fluent = true) @Getter @Setter
 public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T, S>> extends AbstractConfigElement<T, S> {
 
-    private final T original;
+    private T original;
     private T value;
 
     protected final Supplier<@NotNull T> defaultValue;
@@ -98,5 +98,8 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
     @Override
     public void save() {
         if (saveFunction != null) saveFunction.accept(value());
+
+        this.original = value();
+        this.modified = !equals(this.original, value);
     }
 }

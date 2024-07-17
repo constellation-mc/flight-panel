@@ -116,8 +116,6 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		context.fill(0, 0, this.tabNavWidth, 24, -16777216);
-
 		if (this.tabButtons.size() > 1) {
 			for(TabButtonWidget tabButtonWidget : this.tabButtons) {
 				tabButtonWidget.render(context, mouseX, mouseY, delta);

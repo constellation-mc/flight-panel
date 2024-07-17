@@ -48,6 +48,7 @@ public class TestInit implements ClientModInitializer {
         public @Slider @Range(from = -0.1, to = 0.4) double aDouble = 0.3;
         public List<List<@Slider @Range(from = -3, to = 14) Integer>> nestedIntegers = List.of(List.of(3, 14), List.of(1));
         public List<Integer> integers = List.of(12, 34, 56, 78);
+        @RequiresRestart
         public boolean aBoolean = true;
         public String aString = "Hello World!";
         public @Slider @Range(to = 1) int tinySlider = 0;
