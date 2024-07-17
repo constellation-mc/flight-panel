@@ -1,5 +1,6 @@
 package me.melontini.flightpanel.impl.generators;
 
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.collections.NestedListBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
@@ -10,7 +11,6 @@ import me.melontini.flightpanel.api.generators.GuiRegistry;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
 import me.melontini.flightpanel.api.generators.context.TypeContext;
-import me.melontini.flightpanel.api.util.Result;
 import me.melontini.flightpanel.impl.elements.collections.NestedListElement;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,16 +25,16 @@ public class ListProviderFactory implements GuiProviderFactory {
 
     @Override
     public @NotNull <T, A extends AbstractConfigElement<T, A>, S extends BaseElementBuilder<T, A, S>> Result<GuiProvider<T, A, S>, ? extends RuntimeException> createGuiProvider(GuiRegistry registry, FactoryContext context) {
-        if (context.types().raw() != List.class || !(context.types().type() instanceof ParameterizedType params)) return Result.success(null);
+        if (context.types().raw() != List.class || !(context.types().type() instanceof ParameterizedType params)) return Result.ok(null);
 
         Type object = params.getActualTypeArguments()[0];
         var layer = ((AnnotatedParameterizedType) context.types().annotated()).getAnnotatedActualTypeArguments()[0];
         Result<GuiProvider<T, A, S>, ? extends RuntimeException> elementAdapter = registry.createGuiProvider(registry, new FactoryContext(TypeContext.of(object, layer), context.accessor().withType(layer)));
 
         if (elementAdapter.error().isPresent()) return Result.error(elementAdapter.error().get());
-        if (elementAdapter.value().isEmpty()) return Result.success(null);
+        if (elementAdapter.value().isEmpty()) return Result.ok(null);
 
-        return Result.success((GuiProvider<T, A, S>) new ListProvider<>((GuiProvider<T, ? extends AbstractValuedElement<T, ?>, ?>) elementAdapter.value().get()));
+        return Result.ok((GuiProvider<T, A, S>) new ListProvider<>((GuiProvider<T, ? extends AbstractValuedElement<T, ?>, ?>) elementAdapter.value().get()));
     }
 
     public record ListProvider<T>(GuiProvider<T, ? extends AbstractValuedElement<T, ?>, ?> elementAdapter) implements GuiProvider<List<T>, NestedListElement<T>, NestedListBuilder<T>> {

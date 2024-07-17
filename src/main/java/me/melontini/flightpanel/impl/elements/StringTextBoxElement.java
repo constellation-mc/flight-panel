@@ -1,8 +1,8 @@
 package me.melontini.flightpanel.impl.elements;
 
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.StringTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractTextBoxElement;
-import me.melontini.flightpanel.api.util.Result;
 import net.minecraft.text.Text;
 
 import java.util.function.Function;
@@ -23,7 +23,7 @@ public class StringTextBoxElement extends AbstractTextBoxElement<String, StringT
 
     @Override
     protected Result<String, Text> convertFromString(String s) {
-        return Result.success(s);
+        return Result.ok(s);
     }
 
     @Override

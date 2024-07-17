@@ -1,11 +1,11 @@
 package me.melontini.flightpanel.api.generators;
 
 import lombok.NonNull;
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
-import me.melontini.flightpanel.api.util.Result;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -45,7 +45,7 @@ public class GuiRegistry implements GuiProviderFactory, GuiFieldTransformer {
 
     @Override
     public <T, A extends AbstractConfigElement<T, A>, SELF extends BaseElementBuilder<T, A, SELF>> @NotNull Result<GuiProvider<T, A, SELF>, ? extends RuntimeException> createGuiProvider(GuiRegistry registry, FactoryContext context) {
-        if (context.accessor().fromField(Transformations.Excluded.class) != null) return Result.success(null);
+        if (context.accessor().fromField(Transformations.Excluded.class) != null) return Result.ok(null);
 
         for (GuiProviderFactory factory : this.factories) {
             Result<GuiProvider<T, A, SELF>, ? extends RuntimeException> r = factory.createGuiProvider(registry, context);

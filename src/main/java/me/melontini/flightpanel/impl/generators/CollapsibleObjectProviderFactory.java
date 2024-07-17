@@ -1,5 +1,6 @@
 package me.melontini.flightpanel.impl.generators;
 
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
 import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
@@ -8,7 +9,6 @@ import me.melontini.flightpanel.api.generators.*;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
 import me.melontini.flightpanel.api.generators.context.TypeContext;
-import me.melontini.flightpanel.api.util.Result;
 import me.melontini.flightpanel.impl.elements.CollapsibleObjectElement;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.ClassUtils;
@@ -24,13 +24,13 @@ public class CollapsibleObjectProviderFactory implements GuiProviderFactory {
     @Override
     public @NotNull <T, A extends AbstractConfigElement<T, A>, S extends BaseElementBuilder<T, A, S>> Result<GuiProvider<T, A, S>, ? extends RuntimeException> createGuiProvider(GuiRegistry registry, FactoryContext context) {
         var ann = context.accessor().fromType(Transformations.Collapsible.class);
-        if (ann == null) return Result.success(null);
+        if (ann == null) return Result.ok(null);
 
         var gen = baseGenerator(registry, context.types().raw(), ann.collapsed(), ann.keyType());
         if (gen.error().isPresent()) return Result.error(gen.error().get());
-        if (gen.value().isEmpty()) return Result.success(null);
+        if (gen.value().isEmpty()) return Result.ok(null);
 
-        return Result.success((GuiProvider<T, A, S>) gen.value().get());
+        return Result.ok((GuiProvider<T, A, S>) gen.value().get());
     }
 
     public static <O> CollapsibleObjectProvider<O> forAnyObject(GuiRegistry registry, Class<O> type) {
@@ -73,7 +73,7 @@ public class CollapsibleObjectProviderFactory implements GuiProviderFactory {
             return Result.error(exc);
         }
 
-        return Result.success(new CollapsibleObjectProvider<>(collapsed, keyType, type, fields));
+        return Result.ok(new CollapsibleObjectProvider<>(collapsed, keyType, type, fields));
     }
 
     public record CollapsibleObjectProvider<T>(boolean collapsed, Transformations.Collapsible.KeyType keyType, Class<?> raw, Map<Field, GuiProvider<?, ?, ?>> providers) implements GuiProvider<T, CollapsibleObjectElement<T>, CollapsibleObjectBuilder<T>> {

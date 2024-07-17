@@ -1,5 +1,6 @@
 package me.melontini.flightpanel.impl.generators;
 
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.BooleanToggleBuilder;
 import me.melontini.flightpanel.api.builders.elements.numbers.*;
@@ -9,7 +10,6 @@ import me.melontini.flightpanel.api.generators.GuiProviderFactory;
 import me.melontini.flightpanel.api.generators.GuiRegistry;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
-import me.melontini.flightpanel.api.util.Result;
 import me.melontini.flightpanel.impl.elements.BooleanToggleElement;
 import me.melontini.flightpanel.impl.elements.numbers.*;
 import org.apache.commons.lang3.ClassUtils;
@@ -45,7 +45,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
 
     @Override
     public @NotNull <T, A extends AbstractConfigElement<T, A>, S extends BaseElementBuilder<T, A, S>> Result<GuiProvider<T, A, S>, ? extends RuntimeException> createGuiProvider(GuiRegistry registry, FactoryContext context) {
-        if (!ClassUtils.isPrimitiveOrWrapper(context.types().raw())) return Result.success(null);
+        if (!ClassUtils.isPrimitiveOrWrapper(context.types().raw())) return Result.ok(null);
         var type = Objects.requireNonNullElse(ClassUtils.wrapperToPrimitive(context.types().raw()), context.types().raw());
 
         Range range = context.accessor().fromType(Range.class);
@@ -56,13 +56,13 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
             if (factory == null) return Result.error(new RuntimeException("No @Slider factory for this primitive %s!".formatted(context.types().type())));
             if (range == null) return Result.error(new RuntimeException("@Slider requires @Range!"));
 
-            return Result.success((GuiProvider<T, A, S>) factory.apply(slider, range));
+            return Result.ok((GuiProvider<T, A, S>) factory.apply(slider, range));
         }
 
         Function<Range, ? extends GuiProvider<?, ?, ?>> factory = factories.get(type);
         if (factory == null) return Result.error(new RuntimeException("No factory for this primitive %s!".formatted(context.types().type())));
 
-        return Result.success((GuiProvider<T, A, S>) factory.apply(range));
+        return Result.ok((GuiProvider<T, A, S>) factory.apply(range));
     }
 
     public record IntSliderProvider(Slider slider, Range ranged) implements GuiProvider<Integer, IntSliderElement, IntSliderBuilder> {

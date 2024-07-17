@@ -1,10 +1,10 @@
 package me.melontini.flightpanel.impl.elements.numbers;
 
 import com.google.common.primitives.Floats;
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.dark_matter.api.base.util.tuple.Tuple;
 import me.melontini.flightpanel.api.builders.elements.numbers.FloatTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberTextBoxElement;
-import me.melontini.flightpanel.api.util.Result;
 import net.minecraft.text.Text;
 
 public class FloatTextBoxElement extends AbstractNumberTextBoxElement<Float, FloatTextBoxElement> {
@@ -31,6 +31,6 @@ public class FloatTextBoxElement extends AbstractNumberTextBoxElement<Float, Flo
     @Override
     protected Result<Float, Text> convertToNumber(String s) {
         var num = Floats.tryParse(s);
-        return num == null ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_float")) : Result.success(num);
+        return num == null ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_float")) : Result.ok(num);
     }
 }

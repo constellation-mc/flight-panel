@@ -1,5 +1,6 @@
 package me.melontini.flightpanel.impl.generators;
 
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.collections.ListButtonBuilder;
 import me.melontini.flightpanel.api.builders.elements.collections.ListSliderBuilder;
@@ -10,7 +11,6 @@ import me.melontini.flightpanel.api.generators.GuiRegistry;
 import me.melontini.flightpanel.api.generators.Transformations;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
-import me.melontini.flightpanel.api.util.Result;
 import me.melontini.flightpanel.impl.elements.collections.ListButtonElement;
 import me.melontini.flightpanel.impl.elements.collections.ListSliderElement;
 import net.minecraft.client.resource.language.I18n;
@@ -27,14 +27,14 @@ public class EnumProviderFactory implements GuiProviderFactory {
 
     @Override
     public @NotNull <T, A extends AbstractConfigElement<T, A>, S extends BaseElementBuilder<T, A, S>> Result<GuiProvider<T, A, S>, ? extends RuntimeException> createGuiProvider(GuiRegistry registry, FactoryContext context) {
-        if (!context.types().raw().isEnum()) return Result.success(null);
+        if (!context.types().raw().isEnum()) return Result.ok(null);
         List<Enum<?>> values = Arrays.asList(((Class<Enum<?>>)context.types().raw()).getEnumConstants());
 
         Transformations.Slider slider = context.accessor().fromType(Transformations.Slider.class);
         if (slider != null) {
-            return Result.success((GuiProvider<T, A, S>) new EnumSliderProvider<>(slider, values));
+            return Result.ok((GuiProvider<T, A, S>) new EnumSliderProvider<>(slider, values));
         }
-        return Result.success((GuiProvider<T, A, S>) new EnumButtonProvider<>(values));
+        return Result.ok((GuiProvider<T, A, S>) new EnumButtonProvider<>(values));
     }
 
     public static <T extends Enum<T>> Function<T, Text> nameProvider(String i18n, Class<?> type) {

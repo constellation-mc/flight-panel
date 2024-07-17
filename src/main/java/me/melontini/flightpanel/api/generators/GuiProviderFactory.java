@@ -1,9 +1,9 @@
 package me.melontini.flightpanel.api.generators;
 
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
-import me.melontini.flightpanel.api.util.Result;
 import org.jetbrains.annotations.NotNull;
 
 public interface GuiProviderFactory {

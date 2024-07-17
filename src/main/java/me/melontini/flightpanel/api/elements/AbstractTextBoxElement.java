@@ -1,7 +1,7 @@
 package me.melontini.flightpanel.api.elements;
 
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
-import me.melontini.flightpanel.api.util.Result;
 import me.melontini.flightpanel.api.util.SquareData;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;

@@ -2,9 +2,9 @@ package me.melontini.flightpanel.api.elements;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.dark_matter.api.base.util.tuple.Tuple;
 import me.melontini.flightpanel.api.builders.elements.numbers.RangedNumberElementBuilder;
-import me.melontini.flightpanel.api.util.Result;
 import net.minecraft.text.Text;
 
 @Accessors(fluent = true)
@@ -30,7 +30,7 @@ public abstract class AbstractNumberTextBoxElement<T extends Number & Comparable
 
         if (num.compareTo(max) > 0) return Result.error(Text.translatable("service.flight-panel.error.number.max", max()));
         if (num.compareTo(min) < 0) return Result.error(Text.translatable("service.flight-panel.error.number.min", min()));
-        return Result.success(num);
+        return Result.ok(num);
     }
 
     protected abstract Result<T, Text> convertToNumber(String s);
