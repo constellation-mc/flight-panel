@@ -1,5 +1,6 @@
 package me.melontini.flightpanel.impl.elements.collections;
 
+import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
 import me.melontini.flightpanel.api.builders.elements.collections.NestedListBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
@@ -13,18 +14,19 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedListElement<T>> {
+
+    private static final Identifier ICONS = Identifier.of("flight-panel", "textures/gui/gui_icons.png");
 
     private final List<NestedCell> children = new ArrayList<>();
     private final ButtonWidget newElementButton;
@@ -97,7 +99,15 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
         this.visibleChildren.forEach(child -> child.render(context, mouseX, mouseY, delta));
 
         var dn = displayName(mouseX, mouseY);
-        context.drawTextWithShadow(client.textRenderer, Text.literal(collapsed ? "⬇ " : "⬆ ").setStyle(dn.getStyle()).append(dn), pos.x(), pos.y() + 7, -1);
+        int color = Optional.ofNullable(dn.getStyle().getColor()).map(TextColor::getRgb).orElse(-1);
+
+        context.setShaderColor(ColorUtil.getRedF(color) * 0.25F, ColorUtil.getGreenF(color) * 0.25F, ColorUtil.getBlueF(color) * 0.25F, 1);
+        context.drawTexture(ICONS, pos().x() + 2, pos().y() + 5, 0, collapsed ? 12 : 0, 12, 12, 12, 64, 64);
+        context.setShaderColor(ColorUtil.getRedF(color), ColorUtil.getGreenF(color), ColorUtil.getBlueF(color), 1);
+        context.drawTexture(ICONS, pos().x() + 1, pos().y() + 4, 0, collapsed ? 12 : 0, 12, 12, 12, 64, 64);
+
+        context.setShaderColor(1, 1, 1, 1);
+        context.drawTextWithShadow(client.textRenderer, dn, pos.x() + 12 + 4, pos.y() + 7, -1);
         this.newElementButton.render(context, mouseX, mouseY, delta);
     }
 

@@ -3,11 +3,13 @@ package me.melontini.flightpanel.api.elements;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
 import me.melontini.flightpanel.api.util.SquareData;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +24,8 @@ import java.util.function.Supplier;
 
 @Accessors(fluent = true) @Getter @Setter
 public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T, S>> extends AbstractConfigElement<T, S> {
+
+    private static final Identifier ICONS = Identifier.of("flight-panel", "textures/gui/gui_icons.png");
 
     private T original;
     private T value;
@@ -70,6 +74,22 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         this.resetButton.render(context, mouseX, mouseY, delta);
+
+        if (this.resetButton.visible) {
+            int ix = this.resetButton.getX();
+            int iy = this.resetButton.getY();
+
+            int color = this.resetButton.active ? 16777215 : 10526880;
+
+            if (this.resetButton.active) {
+                context.setShaderColor(ColorUtil.getRedF(color) * 0.25F, ColorUtil.getGreenF(color) * 0.25F, ColorUtil.getBlueF(color) * 0.25F, 1);
+                context.drawTexture(ICONS, ix + 5, iy + 5, 0, 0, 24, 12, 12, 64, 64);
+            }
+            context.setShaderColor(ColorUtil.getRedF(color), ColorUtil.getGreenF(color), ColorUtil.getBlueF(color), 1);
+            context.drawTexture(ICONS, ix + 4, iy + 4, 0, 0, 24, 12, 12, 64, 64);
+
+            context.setShaderColor(1, 1, 1, 1);
+        }
     }
 
     protected boolean equals(T value, T other) {
@@ -89,10 +109,6 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
     public void listenToChange(BiConsumer<T, T> consumer) {
         if (changeListeners == null) changeListeners = new ArrayList<>();
         changeListeners.add(consumer);
-    }
-
-    public @Nullable T supplyDefault() {
-        return defaultValue != null ? defaultValue.get() : null;
     }
 
     @Override

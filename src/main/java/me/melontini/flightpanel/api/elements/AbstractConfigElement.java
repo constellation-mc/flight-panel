@@ -39,7 +39,7 @@ public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T
     @Getter
     private final Text elementName;
     @Getter
-    private final boolean elementNameBlank;
+    private final boolean elementNameEmpty;
     private final boolean requiresRestart;
     private final @Nullable List<Text> elementDescription;
 
@@ -48,7 +48,7 @@ public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T
 
     public AbstractConfigElement(BaseElementBuilder<T, S, ?> builder) {
         this.elementName = builder.dataOrThrow(BaseElementBuilder.ELEMENT_NAME);
-        this.elementNameBlank = TextUtil.isBlank(this.elementName());
+        this.elementNameEmpty = TextUtil.isEmpty(this.elementName());
 
         this.requiresRestart = builder.dataOrElse(BaseElementBuilder.REQUIRES_RESTART, false);
 
@@ -120,7 +120,7 @@ public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T
         if (this.isMouseOver(mouseX, mouseY)) text.formatted(Formatting.WHITE);
         if (modified()) text.formatted(Formatting.ITALIC);
         if (getElementError() != null) {
-            if (this.elementNameBlank) text.append(Text.translatable("service.flight-panel.error.widget.generic"));
+            if (this.elementNameEmpty) text.append(Text.translatable("service.flight-panel.error.widget.generic"));
             text.formatted(Formatting.RED);
         }
         return text;

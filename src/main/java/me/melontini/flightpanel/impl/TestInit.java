@@ -28,7 +28,7 @@ public class TestInit implements ClientModInitializer {
                         .title(Text.literal("NEVER GONNA GIVE YOU UP"))
                         .saveFunction(() -> System.out.println(CONFIG));
 
-                List<List<BaseElementBuilder<?, ?, ?>>> partition = Lists.partition(GuiRegistry.withDefaults().generateForObject("test.flight-panel.config.", CONFIG, RealConfig::new), 5);
+                List<List<BaseElementBuilder<?, ?, ?>>> partition = Lists.partition(GuiRegistry.withDefaults().generateForObject("test.flight-panel.config.", CONFIG, RealConfig::new), 1);
                 for (int i = 0; i < partition.size(); i++) {
                     List<BaseElementBuilder<?, ?, ?>> builders = partition.get(i);
                     sb.category(Text.literal("default " + i)).addAll(builders);
