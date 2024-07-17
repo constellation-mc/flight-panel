@@ -3,6 +3,7 @@ package me.melontini.flightpanel.impl.widgets.tab;
 import com.google.common.collect.ImmutableList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
@@ -117,9 +118,11 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		if (this.tabButtons.size() > 1) {
+			context.enableScissor(7, 0, Math.min(400, this.tabNavWidth) - 7, 24);
 			for(TabButtonWidget tabButtonWidget : this.tabButtons) {
 				tabButtonWidget.render(context, mouseX, mouseY, delta);
 			}
+			context.disableScissor();
 		}
 	}
 
@@ -129,11 +132,11 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 	}
 
 	public void init() {
-		int i = Math.min(400, this.tabNavWidth) - 28;
-		int j = MathHelper.roundUpToMultiple(i / this.tabs.size(), 2);
+		var txr = MinecraftClient.getInstance().textRenderer;
+		int i = Math.min(400, this.tabNavWidth) - 14;
 
 		for(TabButtonWidget tabButtonWidget : this.tabButtons) {
-			tabButtonWidget.setWidth(j);
+			tabButtonWidget.setWidth(Math.max(txr.getWidth(tabButtonWidget.getTab()) + 6, 24));
 		}
 
 		this.grid.refreshPositions();

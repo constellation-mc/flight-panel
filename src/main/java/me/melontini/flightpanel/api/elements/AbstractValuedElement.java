@@ -51,7 +51,7 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
 
         this.resetButton = ButtonWidget.builder(Text.empty(), button -> {
             if (defaultValue != null) this.resetToDefault(defaultValue.get());
-        }).size(20, 20).build();
+        }).size(20, 20).build();//TODO narration supplier
         this.resetButton.visible = defaultValue != null;
 
         if (defaultValue != null) {
