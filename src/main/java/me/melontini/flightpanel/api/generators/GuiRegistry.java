@@ -6,7 +6,6 @@ import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
 import me.melontini.flightpanel.api.util.Result;
-import me.melontini.flightpanel.impl.generators.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -15,30 +14,20 @@ import java.util.Set;
 
 public class GuiRegistry implements GuiProviderFactory, GuiFieldTransformer {
 
-    public static GuiRegistry empty() {
+    public static GuiRegistry create() {
         return new GuiRegistry();
     }
 
     public static GuiRegistry withDefaults() {
-        GuiRegistry def = GuiRegistry.empty();
-        GuiRegistry.applyDefaultProviders(def);
-        GuiRegistry.applyDefaultFieldTransformers(def);
+        GuiRegistry def = GuiRegistry.create();
+        def.registerProviderFactory(DefaultElements.Factories.PRIMITIVE);
+        def.registerProviderFactory(DefaultElements.Factories.STRING);
+        def.registerProviderFactory(DefaultElements.Factories.LIST);
+        def.registerProviderFactory(DefaultElements.Factories.ENUM);
+        def.registerProviderFactory(DefaultElements.Factories.COLLAPSIBLE_OBJECT);
+
+        def.registerFieldTransformer(DefaultElements.Transformers.REQUIRES_RESTART);
         return def;
-    }
-
-    public static void applyDefaultProviders(GuiRegistry registry) {
-        registry.registerProviderFactory(new PrimitiveProviderFactory());
-        registry.registerProviderFactory(new StringProviderFactory());
-        registry.registerProviderFactory(new ListProviderFactory());
-        registry.registerProviderFactory(new EnumProviderFactory());
-        registry.registerProviderFactory(new CollapsibleObjectProviderFactory());
-    }
-
-    public static void applyDefaultFieldTransformers(GuiRegistry registry) {
-        registry.registerFieldTransformer((builder, field, context) -> {
-            if (!field.isAnnotationPresent(Transformations.RequiresRestart.class)) return;
-            builder.requireRestart();
-        });
     }
 
     private final Set<GuiProviderFactory> factories = new LinkedHashSet<>();
