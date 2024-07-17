@@ -6,10 +6,7 @@ import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
 import me.melontini.flightpanel.api.util.Result;
-import me.melontini.flightpanel.impl.generators.CollapsibleObjectProviderFactory;
-import me.melontini.flightpanel.impl.generators.ListProviderFactory;
-import me.melontini.flightpanel.impl.generators.PrimitiveProviderFactory;
-import me.melontini.flightpanel.impl.generators.StringProviderFactory;
+import me.melontini.flightpanel.impl.generators.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -33,6 +30,7 @@ public class GuiRegistry implements GuiProviderFactory, GuiFieldTransformer {
         registry.registerProviderFactory(new PrimitiveProviderFactory());
         registry.registerProviderFactory(new StringProviderFactory());
         registry.registerProviderFactory(new ListProviderFactory());
+        registry.registerProviderFactory(new EnumProviderFactory());
         registry.registerProviderFactory(new CollapsibleObjectProviderFactory());
     }
 

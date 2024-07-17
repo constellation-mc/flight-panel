@@ -29,7 +29,7 @@ public class TestInit implements ClientModInitializer {
                         .title(Text.literal("NEVER GONNA GIVE YOU UP"))
                         .saveFunction(() -> System.out.println(CONFIG));
 
-                List<List<BaseElementBuilder<?, ?, ?>>> partition = Lists.partition(ElementGenerator.generateForObject("test.flight-panel.config.", CONFIG, RealConfig::new, Optional.empty()), 3);
+                List<List<BaseElementBuilder<?, ?, ?>>> partition = Lists.partition(ElementGenerator.generateForObject("test.flight-panel.config.", CONFIG, RealConfig::new, Optional.empty()), 5);
                 for (int i = 0; i < partition.size(); i++) {
                     List<BaseElementBuilder<?, ?, ?>> builders = partition.get(i);
                     sb.category(Text.literal("default " + i)).addAll(builders);
@@ -51,8 +51,15 @@ public class TestInit implements ClientModInitializer {
         public List<Integer> integers = List.of(12, 34, 56, 78);
         public boolean aBoolean = true;
         public String aString = "Hello World!";
+        public @Slider @Range(to = 1) int tinySlider = 0;
+        public @Slider SliderEnum sliderEnum = SliderEnum.TWO;
+        public SliderEnum buttonEnum = SliderEnum.TWO;
 
         public List<@Collapsible InnerObj> innerObjs = Lists.newArrayList();
+    }
+
+    public enum SliderEnum {
+        ONE, TWO, THREE
     }
 
     @EqualsAndHashCode

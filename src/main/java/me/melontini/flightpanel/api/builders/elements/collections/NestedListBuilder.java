@@ -1,8 +1,10 @@
-package me.melontini.flightpanel.api.builders.elements;
+package me.melontini.flightpanel.api.builders.elements.collections;
 
+import me.melontini.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
+import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.DataType;
-import me.melontini.flightpanel.impl.elements.NestedListElement;
+import me.melontini.flightpanel.impl.elements.collections.NestedListElement;
 import net.minecraft.text.Text;
 
 import java.util.List;

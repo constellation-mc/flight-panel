@@ -1,7 +1,7 @@
 package me.melontini.flightpanel.impl.generators;
 
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
-import me.melontini.flightpanel.api.builders.elements.NestedListBuilder;
+import me.melontini.flightpanel.api.builders.elements.collections.NestedListBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.generators.GuiProvider;
@@ -11,7 +11,7 @@ import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
 import me.melontini.flightpanel.api.generators.context.TypeContext;
 import me.melontini.flightpanel.api.util.Result;
-import me.melontini.flightpanel.impl.elements.NestedListElement;
+import me.melontini.flightpanel.impl.elements.collections.NestedListElement;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.AnnotatedParameterizedType;

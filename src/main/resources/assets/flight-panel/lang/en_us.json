@@ -29,9 +29,17 @@
   "test.flight-panel.config.option.aBoolean": "Boolean Toggle",
   "test.flight-panel.config.option.aString": "A String Text Box With a Longer Name",
   "test.flight-panel.config.option.aString.@Tooltip": "Wow, the name really is long!",
+  "test.flight-panel.config.option.tinySlider": "Tiny Slider",
+  "test.flight-panel.config.option.sliderEnum": "Enum Slider",
+  "test.flight-panel.config.option.sliderEnum.@Tooltip": "A simple enum slider",
+  "test.flight-panel.config.option.buttonEnum": "Enum Button",
   "test.flight-panel.config.option.innerObjs": "A list of collapsible objects.",
   "test.flight-panel.config.option.InnerObj": "Inner Object",
   "test.flight-panel.config.option.InnerObj.value": "An inner value.",
   "test.flight-panel.config.option.InnerObj.value.option.value": "Nested Nested Object",
-  "test.flight-panel.config.option.InnerObj.value.option.value.option.value": "Nested Int Value"
+  "test.flight-panel.config.option.InnerObj.value.option.value.option.value": "Nested Int Value",
+
+  "test.flight-panel.config.option.SliderEnum.ONE": "One",
+  "test.flight-panel.config.option.SliderEnum.TWO": "Two",
+  "test.flight-panel.config.option.SliderEnum.THREE": "Three"
 }

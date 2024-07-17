@@ -1,7 +1,7 @@
-package me.melontini.flightpanel.impl.elements;
+package me.melontini.flightpanel.impl.elements.collections;
 
 import me.melontini.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
-import me.melontini.flightpanel.api.builders.elements.NestedListBuilder;
+import me.melontini.flightpanel.api.builders.elements.collections.NestedListBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.SquareData;
@@ -42,7 +42,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
         this.defaultElementValue = builder.dataOrThrow(builder.defaultElementType());
         this.collapsed = builder.dataOrElse(CollapsibleObjectBuilder.COLLAPSED, true);
 
-        this.newElementButton = ButtonWidget.builder(Text.literal("+").formatted(Formatting.YELLOW), button -> {
+        this.newElementButton = ButtonWidget.builder(Text.literal("+"), button -> {
             var list = new ArrayList<>(NestedListElement.this.value());
             var cell = new NestedCell(this.cellFactory.apply(this.defaultElementValue.get(), this), list.size());
             this.children.add(cell);
