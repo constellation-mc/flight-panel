@@ -71,19 +71,11 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
             context.fill(x-6, scrollerPos, x - 1, scrollerPos + scroller - 1, -4144960);
         }
 
-        var hovered = hoveredElement(mouseX, mouseY).filter(e -> e instanceof AbstractConfigElement<?,?>).map(e -> ((AbstractConfigElement<?, ?>) e));
-
         context.enableScissor(x, y, x + width, y + height);
-        hovered.ifPresent(abstractConfigElement -> abstractConfigElement.renderMouseHover(context, mouseX));
         for (AbstractConfigElement<?, ?> child : this.visibleChildren) {
             child.render(context, mouseX, mouseY, delta);
         }
         context.disableScissor();
-
-        if (hovered.isPresent()) {
-            var errorTooltip = hovered.get().getElementError();
-            if (errorTooltip != null) hovered.get().renderErrorTooltip(context, mouseX, mouseY, errorTooltip);
-        }
     }
 
     private boolean lastDrag = false;

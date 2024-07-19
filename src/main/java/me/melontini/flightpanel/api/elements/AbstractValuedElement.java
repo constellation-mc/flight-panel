@@ -3,9 +3,9 @@ package me.melontini.flightpanel.api.elements;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
 import me.melontini.flightpanel.api.util.SquareData;
+import me.melontini.flightpanel.impl.widgets.IconDrawer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
@@ -38,6 +38,7 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
 
     protected final BiFunction<T, T, Boolean> deepEquals;
     protected final ButtonWidget resetButton;
+    private final IconDrawer iconDrawer;
 
     public AbstractValuedElement(ValuedElementBuilder<T, S, ?> builder) {
         super(builder);
@@ -54,9 +55,18 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
         }).size(20, 20).build();//TODO narration supplier
         this.resetButton.visible = defaultValue != null;
 
+        this.iconDrawer = IconDrawer.builder()
+                .width(12).height(12).u(0).v(24)
+                .textureWidth(64).textureHeight(64)
+                .texture(ICONS).build();
+
         if (defaultValue != null) {
             this.resetButton.active = !equals(defaultValue.get(), value());
-            this.listenToChange((t, t2) -> this.resetButton.active = !equals(defaultValue.get(), t2));
+            this.iconDrawer.color(this.resetButton.active ? 16777215 : 10526880);
+            this.listenToChange((t, t2) -> {
+                this.resetButton.active = !equals(defaultValue.get(), t2);
+                this.iconDrawer.color(this.resetButton.active ? 16777215 : 10526880);
+            });
         }
     }
 
@@ -68,6 +78,7 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
 
         this.resetButton.setX(self.endX() - 21);
         this.resetButton.setY(self.y() + 1);
+        this.iconDrawer.x(this.resetButton.getX() + 4).y(this.resetButton.getY() + 4);
     }
 
     @Override
@@ -76,19 +87,7 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
         this.resetButton.render(context, mouseX, mouseY, delta);
 
         if (this.resetButton.visible) {
-            int ix = this.resetButton.getX();
-            int iy = this.resetButton.getY();
-
-            int color = this.resetButton.active ? 16777215 : 10526880;
-
-            if (this.resetButton.active) {
-                context.setShaderColor(ColorUtil.getRedF(color) * 0.25F, ColorUtil.getGreenF(color) * 0.25F, ColorUtil.getBlueF(color) * 0.25F, 1);
-                context.drawTexture(ICONS, ix + 5, iy + 5, 0, 0, 24, 12, 12, 64, 64);
-            }
-            context.setShaderColor(ColorUtil.getRedF(color), ColorUtil.getGreenF(color), ColorUtil.getBlueF(color), 1);
-            context.drawTexture(ICONS, ix + 4, iy + 4, 0, 0, 24, 12, 12, 64, 64);
-
-            context.setShaderColor(1, 1, 1, 1);
+            this.iconDrawer.renderIcon(context, this.resetButton.active);
         }
     }
 

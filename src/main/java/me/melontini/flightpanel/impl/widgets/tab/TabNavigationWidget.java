@@ -28,8 +28,8 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 	private final ImmutableList<Text> tabs;
 	private final ImmutableList<TabButtonWidget> tabButtons;
 
-	TabNavigationWidget(int x, TabManager tabManager, Iterable<Text> tabs) {
-		this.tabNavWidth = x;
+	TabNavigationWidget(int width, TabManager tabManager, Iterable<Text> tabs) {
+		this.tabNavWidth = width;
 		this.tabManager = tabManager;
 		this.tabs = ImmutableList.copyOf(tabs);
 		this.grid = new GridWidget(0, 0);

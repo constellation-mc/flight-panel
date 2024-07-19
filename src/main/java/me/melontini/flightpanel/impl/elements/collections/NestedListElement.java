@@ -1,11 +1,11 @@
 package me.melontini.flightpanel.impl.elements.collections;
 
-import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
 import me.melontini.flightpanel.api.builders.elements.collections.NestedListBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.SquareData;
+import me.melontini.flightpanel.impl.widgets.IconDrawer;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
@@ -36,6 +36,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
 
     private boolean collapsed;
     private final List<NestedCell> visibleChildren = new ArrayList<>();
+    private final IconDrawer iconDrawer;
 
     public NestedListElement(NestedListBuilder<T> builder) {
         super(builder);
@@ -59,6 +60,11 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
             T t = value().get(i);
             this.children.add(new NestedCell(cellFactory.apply(t, this), i));
         }
+
+        this.iconDrawer = IconDrawer.builder()
+                .width(12).height(12).u(0).v(12)
+                .textureWidth(64).textureHeight(64)
+                .texture(ICONS).build();
     }
 
     @Override
@@ -91,6 +97,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
                 if (child.element.pos().withHeight(child.element.getElementHeight()).intersects(parent)) visibleChildren.add(child);
             }
         }
+        this.iconDrawer.x(self.x() + 1).y(self.y() + 4).u(collapsed ? 12 : 0);
     }
 
     @Override
@@ -100,13 +107,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
 
         var dn = displayName(mouseX, mouseY);
         int color = Optional.ofNullable(dn.getStyle().getColor()).map(TextColor::getRgb).orElse(-1);
-
-        context.setShaderColor(ColorUtil.getRedF(color) * 0.25F, ColorUtil.getGreenF(color) * 0.25F, ColorUtil.getBlueF(color) * 0.25F, 1);
-        context.drawTexture(ICONS, pos().x() + 2, pos().y() + 5, 0, collapsed ? 12 : 0, 12, 12, 12, 64, 64);
-        context.setShaderColor(ColorUtil.getRedF(color), ColorUtil.getGreenF(color), ColorUtil.getBlueF(color), 1);
-        context.drawTexture(ICONS, pos().x() + 1, pos().y() + 4, 0, collapsed ? 12 : 0, 12, 12, 12, 64, 64);
-
-        context.setShaderColor(1, 1, 1, 1);
+        this.iconDrawer.color(color).renderIcon(context, true);
         context.drawTextWithShadow(client.textRenderer, dn, pos.x() + 12 + 4, pos.y() + 7, -1);
         this.newElementButton.render(context, mouseX, mouseY, delta);
     }

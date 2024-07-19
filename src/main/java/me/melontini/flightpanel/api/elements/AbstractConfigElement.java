@@ -11,7 +11,6 @@ import me.melontini.flightpanel.impl.util.TextUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
@@ -21,6 +20,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Accessors(fluent = true)
-public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T, S>> extends AbstractParentElement implements ParentElement, Selectable {
+public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T, S>> extends AbstractParentElement implements Selectable {
 
     private static final int HIGHLIGHT_START = ColorUtil.toColor(255, 255, 255, 0);
     private static final int HIGHLIGHT_END = ColorUtil.toColor(255, 255, 255, 90);
@@ -80,6 +80,10 @@ public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T
 
             firstHighlightTarget = relMouseX;
             secondHighlightTarget = relMouseX;
+        } else {
+            this.renderMouseHover(context, mouseX);
+            var errorTooltip = this.getElementError();
+            if (errorTooltip != null) this.renderErrorTooltip(context, mouseX, mouseY, errorTooltip);
         }
     }
 
@@ -181,6 +185,7 @@ public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T
         return isMouseOver(mouseX, mouseY) ? this : null;
     }
 
+    @ApiStatus.Internal
     protected ConfigScreenProxy proxy() {
         if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreenProxy csp) return csp;
         throw new IllegalStateException();
