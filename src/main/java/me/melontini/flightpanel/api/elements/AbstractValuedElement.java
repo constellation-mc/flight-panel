@@ -50,9 +50,15 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
         this.deepEquals = value.getClass().isArray() ? (t1, t2) -> Arrays.deepEquals((Object[]) t1, (Object[]) t2) : Objects::equals;
         this.modified = !equals(original, value);
 
-        this.resetButton = ButtonWidget.builder(Text.empty(), button -> {
-            if (defaultValue != null) this.resetToDefault(defaultValue.get());
-        }).size(20, 20).build();//TODO narration supplier
+        this.resetButton = new ButtonWidget(0,0,20,20, Text.empty(), button -> {
+            if (defaultValue != null) AbstractValuedElement.this.resetToDefault(defaultValue.get());
+        }, Supplier::get) {
+            @Override
+            protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+                this.hovered = this.hovered && AbstractValuedElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
+                super.renderButton(context, mouseX, mouseY, delta);
+            }
+        };
         this.resetButton.visible = defaultValue != null;
 
         this.iconDrawer = IconDrawer.builder()

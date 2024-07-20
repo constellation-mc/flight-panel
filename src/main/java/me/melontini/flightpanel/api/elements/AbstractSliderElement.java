@@ -60,6 +60,12 @@ public abstract class AbstractSliderElement<T, S extends AbstractSliderElement<T
         }
 
         @Override
+        public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+            this.hovered = this.hovered && AbstractSliderElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
+            super.renderButton(context, mouseX, mouseY, delta);
+        }
+
+        @Override
         protected void updateMessage() {
             this.setMessage(AbstractSliderElement.this.getMessage(AbstractSliderElement.this.value()));
         }

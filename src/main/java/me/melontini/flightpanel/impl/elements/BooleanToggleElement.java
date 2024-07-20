@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class BooleanToggleElement extends AbstractValuedElement<Boolean, BooleanToggleElement> {
 
@@ -17,8 +18,13 @@ public class BooleanToggleElement extends AbstractValuedElement<Boolean, Boolean
 
     public BooleanToggleElement(BooleanToggleBuilder builder) {
         super(builder);
-        this.widget = ButtonWidget.builder(value() ? Text.literal("✔").formatted(Formatting.GREEN) : Text.literal( "❌").formatted(Formatting.RED),button -> value(!value()))
-                .size(20, 20).build();
+        this.widget = new ButtonWidget(0,0,20,20, value() ? Text.literal("✔").formatted(Formatting.GREEN) : Text.literal( "❌").formatted(Formatting.RED), button -> value(!value()), Supplier::get) {
+            @Override
+            protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+                this.hovered = this.hovered && BooleanToggleElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
+                super.renderButton(context, mouseX, mouseY, delta);
+            }
+        };
 
         this.listenToChange((b, nb) -> this.widget.setMessage(nb ? Text.literal("✔").formatted(Formatting.GREEN) : Text.literal( "❌").formatted(Formatting.RED)));
     }

@@ -3,7 +3,7 @@
   "id": "flight-panel",
   "version": "${version}",
   "name": "Flight Panel",
-  "description": "",
+  "description": "Every captain needs controls!",
   "authors": [
     "melontini"
   ],

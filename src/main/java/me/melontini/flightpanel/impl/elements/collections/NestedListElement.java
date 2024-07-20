@@ -45,7 +45,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
         this.defaultElementValue = builder.dataOrThrow(builder.defaultElementType());
         this.collapsed = builder.dataOrElse(CollapsibleObjectBuilder.COLLAPSED, true);
 
-        this.newElementButton = ButtonWidget.builder(Text.literal("+"), button -> {
+        this.newElementButton = new ButtonWidget(0,0,20,20, Text.literal("+"), button -> {
             var list = new ArrayList<>(NestedListElement.this.value());
             var cell = new NestedCell(this.cellFactory.apply(this.defaultElementValue.get(), this), list.size());
             this.children.add(cell);
@@ -53,7 +53,13 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
             value(list);
             this.collapsed = false;
             this.proxy().rebuildPositions();
-        }).size(20, 20).build();
+        }, Supplier::get) {
+            @Override
+            protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+                this.hovered = this.hovered && NestedListElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
+                super.renderButton(context, mouseX, mouseY, delta);
+            }
+        };
         this.newElementButton.visible = !immutable;
 
         for (int i = 0; i < value().size(); i++) {
@@ -200,7 +206,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
                 NestedListElement.this.value(list);
             });
 
-            this.removeWidget = ButtonWidget.builder(Text.literal("-").formatted(Formatting.RED), button -> {
+            this.removeWidget = new ButtonWidget(0,0,12,12, Text.literal("-").formatted(Formatting.RED), button -> {
                 var list = new ArrayList<>(NestedListElement.this.value());
 
                 if (index() != list.size() - 1) {
@@ -212,7 +218,13 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
 
                 NestedListElement.this.value(list);
                 NestedListElement.this.proxy().rebuildPositions();
-            }).size(12, 12).build();
+            }, Supplier::get) {
+                @Override
+                protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+                    this.hovered = this.hovered && NestedListElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
+                    super.renderButton(context, mouseX, mouseY, delta);
+                }
+            };
             this.removeWidget.visible = !NestedListElement.this.immutable;
         }
 

@@ -19,17 +19,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 @Environment(EnvType.CLIENT)
-public class TabNavigationWidget extends AbstractParentElement implements Drawable, Element, Selectable {
+public class TabNavigationWidget extends AbstractParentElement implements Drawable, Element, Selectable, TabButtonWidget.MousePosChecker {
 
 	private static final Text USAGE_NARRATION_TEXT = Text.translatable("narration.tab_navigation.usage");
 	private final GridWidget grid;
-	private int tabNavWidth;
 	private final TabManager tabManager;
 	private final ImmutableList<Text> tabs;
 	private final ImmutableList<TabButtonWidget> tabButtons;
 
+	private int tabNavWidth;
+	private int tabAreaWidth;
+
+	private int scrollPos = 0;
+	private int maxScrollPos = 0;
+
 	TabNavigationWidget(int width, TabManager tabManager, Iterable<Text> tabs) {
-		this.tabNavWidth = width;
+		this.setWidth(width);
 		this.tabManager = tabManager;
 		this.tabs = ImmutableList.copyOf(tabs);
 		this.grid = new GridWidget(0, 0);
@@ -38,7 +43,7 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 		int i = 0;
 
 		for(Text tab : tabs) {
-			builder.add(this.grid.add(new TabButtonWidget(tabManager, tab, 0, 24), 0, i++));
+			builder.add(this.grid.add(new TabButtonWidget(tabManager, tab, this, 0, 24), 0, i++));
 		}
 
 		this.tabButtons = builder.build();
@@ -50,6 +55,7 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 
 	public void setWidth(int width) {
 		this.tabNavWidth = width;
+		this.tabAreaWidth = Math.min(400, this.tabNavWidth) - 14;
 	}
 
 	@Override
@@ -65,7 +71,43 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 		super.setFocused(focused);
 		if (focused instanceof TabButtonWidget tabButtonWidget) {
 			this.tabManager.setCurrentTab(tabButtonWidget.getTab(), true);
+
+			int scroll = (tabButtonWidget.getX() + (tabButtonWidget.getWidth() / 2)) - this.grid.getX();
+
+			if (scroll < this.tabAreaWidth) scroll = 0;
+			else if (scroll > this.maxScrollPos) scroll = this.maxScrollPos;
+			else scroll -= this.tabAreaWidth / 2;
+
+			if (this.scrollPos != scroll) {
+				this.scrollPos = scroll;
+				this.rebuildPositions();
+			}
 		}
+	}
+
+	@Override
+	public Optional<Element> hoveredElement(double mouseX, double mouseY) {
+		if (!this.isTabAreaHovered(mouseX, mouseY)) return Optional.empty();
+		return super.hoveredElement(mouseX, mouseY);
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (!this.isTabAreaHovered(mouseX, mouseY)) return false;
+		return super.mouseClicked(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		if (!this.isTabAreaHovered(mouseX, mouseY)) return false;
+
+		int scrollPos = MathHelper.clamp(this.scrollPos + (int) (-amount * 10), 0, this.maxScrollPos);
+		if (this.scrollPos != scrollPos) {
+			this.scrollPos = scrollPos;
+			this.rebuildPositions();
+			return true;
+		}
+		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 
 	@Nullable @Override
@@ -118,7 +160,7 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		if (this.tabButtons.size() > 1) {
-			context.enableScissor(7, 0, Math.min(400, this.tabNavWidth) - 7, 24);
+			context.enableScissor(7, 0, this.tabAreaWidth + 7, 24);
 			for(TabButtonWidget tabButtonWidget : this.tabButtons) {
 				tabButtonWidget.render(context, mouseX, mouseY, delta);
 			}
@@ -132,16 +174,23 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 	}
 
 	public void init() {
+		this.scrollPos = 0;
 		var txr = MinecraftClient.getInstance().textRenderer;
-		int i = Math.min(400, this.tabNavWidth) - 14;
 
+		int sw = -tabAreaWidth;
 		for(TabButtonWidget tabButtonWidget : this.tabButtons) {
 			tabButtonWidget.setWidth(Math.max(txr.getWidth(tabButtonWidget.getTab()) + 6, 24));
+			sw += tabButtonWidget.getWidth();
 		}
+		this.maxScrollPos = Math.max(0, sw);
 
 		this.grid.refreshPositions();
-		this.grid.setX(MathHelper.roundUpToMultiple((this.tabNavWidth - i) / 2, 2));
+		this.rebuildPositions();
 		this.grid.setY(0);
+	}
+
+	public void rebuildPositions() {
+		this.grid.setX(MathHelper.roundUpToMultiple((this.tabNavWidth - this.tabAreaWidth) / 2, 2) - this.scrollPos);
 	}
 
 	public void selectTab(int index, boolean clickSound) {
@@ -172,7 +221,7 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 				int i = this.getCurrentTabIndex();
 				if (i != -1) {
 					int j = Screen.hasShiftDown() ? i - 1 : i + 1;
-					return Math.floorMod(j, this.tabs.size());
+					return Math.floorDiv(j, this.tabs.size());
 				}
 			}
 
@@ -189,6 +238,16 @@ public class TabNavigationWidget extends AbstractParentElement implements Drawab
 	@Nullable private TabButtonWidget getCurrentTabButton() {
 		int i = this.getCurrentTabIndex();
 		return i != -1 ? this.tabButtons.get(i) : null;
+	}
+
+	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		return mouseX >= 0 && mouseX <= tabNavWidth && mouseY >= 0 && mouseY <= 24;
+	}
+
+	@Override
+	public boolean isTabAreaHovered(double x, double y) {
+		return x >= 7 && x <= (tabAreaWidth + 7) && y >= 0 && y <= 24;
 	}
 
 	@Environment(EnvType.CLIENT)

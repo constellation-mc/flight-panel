@@ -3,6 +3,7 @@ package me.melontini.flightpanel.impl;
 import com.google.common.collect.Lists;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import me.melontini.dark_matter.api.base.util.MathUtil;
 import me.melontini.flightpanel.api.builders.ConfigScreenBuilder;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.generators.GuiRegistry;
@@ -31,7 +32,7 @@ public class TestInit implements ClientModInitializer {
                 List<List<BaseElementBuilder<?, ?, ?>>> partition = Lists.partition(GuiRegistry.withDefaults().generateForObject("test.flight-panel.config.", CONFIG, RealConfig::new), 1);
                 for (int i = 0; i < partition.size(); i++) {
                     List<BaseElementBuilder<?, ?, ?>> builders = partition.get(i);
-                    sb.category(Text.literal("default " + i)).addAll(builders);
+                    sb.category(Text.literal("default " + MathUtil.nextInt(1, 200))).addAll(builders);
                 }
 
                 System.out.println(CONFIG);
@@ -54,6 +55,11 @@ public class TestInit implements ClientModInitializer {
         public @Slider @Range(to = 1) int tinySlider = 0;
         public @Slider SliderEnum sliderEnum = SliderEnum.TWO;
         public SliderEnum buttonEnum = SliderEnum.TWO;
+
+        public boolean aBoolean1 = true;
+        public String aString1 = "Amogus";
+        public boolean aBoolean2 = false;
+        public String aString2 = "stop";
 
         public List<@Collapsible InnerObj> innerObjs = Lists.newArrayList();
     }

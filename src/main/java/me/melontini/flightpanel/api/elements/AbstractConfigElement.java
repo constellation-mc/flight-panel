@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
+import me.melontini.flightpanel.api.util.ConfigScreenProxy;
 import me.melontini.flightpanel.api.util.SquareData;
 import me.melontini.flightpanel.impl.ConfigScreen;
-import me.melontini.flightpanel.impl.util.ConfigScreenProxy;
 import me.melontini.flightpanel.impl.util.TextUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.AbstractParentElement;
@@ -83,7 +83,7 @@ public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T
         } else {
             this.renderMouseHover(context, mouseX);
             var errorTooltip = this.getElementError();
-            if (errorTooltip != null) this.renderErrorTooltip(context, mouseX, mouseY, errorTooltip);
+            if (errorTooltip != null) this.proxy().queuePostElementRender(() -> this.renderErrorTooltip(context, mouseX, mouseY, errorTooltip));
         }
     }
 
@@ -152,7 +152,7 @@ public abstract class AbstractConfigElement<T, S extends AbstractConfigElement<T
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
-        return pos.withinBounds((int) mouseX, (int) mouseY);
+        return pos.withinBounds((int) mouseX, (int) mouseY) && this.proxy().isPointWithinListBounds(mouseX, mouseY);
     }
 
     public void unfocus() {

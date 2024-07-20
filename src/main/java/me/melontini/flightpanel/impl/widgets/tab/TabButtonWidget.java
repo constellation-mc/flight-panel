@@ -20,15 +20,19 @@ public class TabButtonWidget extends ClickableWidget {
 	private final TabManager tabManager;
 	@Getter
     private final Text tab;
+	private final MousePosChecker isHovered;
 
-	public TabButtonWidget(TabManager tabManager, Text tab, int width, int height) {
+	public TabButtonWidget(TabManager tabManager, Text tab, MousePosChecker isHovered, int width, int height) {
 		super(0, 0, width, height, tab);
 		this.tabManager = tabManager;
 		this.tab = tab;
+		this.isHovered = isHovered;
 	}
 
 	@Override
 	public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+		this.hovered = this.isHovered.isTabAreaHovered(mouseX, mouseY) && this.hovered;
+
 		context.drawNineSlicedTexture(TEXTURE, this.getX(), this.getY(), this.width, this.height, 2, 2, 2, 0, 130, 24, 0, this.getTextureV());
 		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 		int i = this.active ? -1 : -6250336;
@@ -77,5 +81,9 @@ public class TabButtonWidget extends ClickableWidget {
 
     public boolean isCurrentTab() {
 		return this.tabManager.getCurrentTab() == this.tab;
+	}
+
+	public interface MousePosChecker {
+		boolean isTabAreaHovered(double x, double y);
 	}
 }

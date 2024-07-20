@@ -7,13 +7,12 @@ import me.melontini.dark_matter.api.base.util.MakeSure;
 import me.melontini.flightpanel.api.builders.CategoryBuilder;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
-import me.melontini.flightpanel.impl.util.ConfigScreenProxy;
+import me.melontini.flightpanel.api.util.ConfigScreenProxy;
 import me.melontini.flightpanel.impl.widgets.ConfigElementListWidget;
 import me.melontini.flightpanel.impl.widgets.OptionInfoWidget;
 import me.melontini.flightpanel.impl.widgets.tab.TabManager;
 import me.melontini.flightpanel.impl.widgets.tab.TabNavigationWidget;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
@@ -23,13 +22,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ConfigScreen extends Screen implements ConfigScreenProxy {
@@ -134,6 +129,8 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
         this.saveWidget.setMessage(erroring ? SAVE_LABEL.copy().formatted(Formatting.RED) : SAVE_LABEL);
     }
 
+    private final Deque<Runnable> renderTasks = new ArrayDeque<>();
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackgroundTexture(context);
@@ -153,6 +150,13 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
                 && mouseY >= saveWidget.getY()
                 && mouseY <= saveWidget.getY() + saveWidget.getHeight()) {
             context.drawTooltip(client.textRenderer, List.of(SAVE_ERROR_TITLE, SAVE_ERROR_DESC), mouseX, mouseY);
+        }
+
+        synchronized (this.renderTasks) {
+            while (!this.renderTasks.isEmpty()) {
+                Runnable runnable = this.renderTasks.poll();
+                if (runnable != null) runnable.run();
+            }
         }
     }
 
@@ -184,23 +188,6 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
         this.erroring = this.allChildren.stream().anyMatch(element -> element.getElementError() != null);
 
         this.updateWidgets();
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    @Override
-    public void setFocused(@Nullable Element focused) {
-        super.setFocused(focused);
-    }
-
-    @Override
-    public List<? extends Element> children() {
-        return List.of(this.navigationWidget, this.currentCategory,
-                this.backWidget, this.saveWidget,
-                this.optionInfoWidget);
     }
 
     @Override
@@ -262,5 +249,17 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
 
     public void rebuildPositions() {
         this.currentCategory.rebuildPositions();
+    }
+
+    @Override
+    public boolean isPointWithinListBounds(double x, double y) {
+        return this.currentCategory.isMouseOver(x, y);
+    }
+
+    @Override
+    public void queuePostElementRender(Runnable runnable) {
+        synchronized (this.renderTasks) {
+            this.renderTasks.add(runnable);
+        }
     }
 }

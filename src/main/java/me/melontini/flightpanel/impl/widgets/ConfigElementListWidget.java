@@ -5,8 +5,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
+import me.melontini.flightpanel.api.util.ConfigScreenProxy;
 import me.melontini.flightpanel.api.util.SquareData;
-import me.melontini.flightpanel.impl.util.ConfigScreenProxy;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -82,12 +82,14 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        if (!this.isMouseOver(mouseX, mouseY)) return false;
         if (super.mouseScrolled(mouseX, mouseY, amount)) return true;
 
         int scrollPos = MathHelper.clamp(this.scrollPos + (int) (amount * 10), -this.maxScrollPos, 0);
         if (this.scrollPos != scrollPos) {
             this.scrollPos = scrollPos;
             this.rebuildPositions();
+            return true;
         }
         return false;
     }
@@ -103,8 +105,9 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
         if (this.scrollPos != scrollPos) {
             this.scrollPos = scrollPos;
             this.rebuildPositions();
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -116,7 +119,7 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         this.setFocused(null);
         this.children().forEach(AbstractConfigElement::unfocus);
-        if (!isMouseOver(mouseX, mouseY)) return false;
+        if (!this.isMouseOver(mouseX, mouseY)) return false;
 
         if (button == 0 && mouseX >= x + width - 6 && mouseX <= x + width) {
             if (mouseY >= y && mouseY <= y + height) {
