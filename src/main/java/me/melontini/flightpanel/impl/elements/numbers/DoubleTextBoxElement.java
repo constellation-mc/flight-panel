@@ -7,30 +7,33 @@ import me.melontini.flightpanel.api.builders.elements.numbers.DoubleTextBoxBuild
 import me.melontini.flightpanel.api.elements.AbstractNumberTextBoxElement;
 import net.minecraft.text.Text;
 
-public class DoubleTextBoxElement extends AbstractNumberTextBoxElement<Double, DoubleTextBoxElement> {
+public class DoubleTextBoxElement
+    extends AbstractNumberTextBoxElement<Double, DoubleTextBoxElement> {
 
-    public DoubleTextBoxElement(DoubleTextBoxBuilder builder) {
-        super(builder);
-    }
+  public DoubleTextBoxElement(DoubleTextBoxBuilder builder) {
+    super(builder);
+  }
 
-    @Override
-    protected Tuple<Double, Double> defaultRange() {
-        return Tuple.of(-Double.MAX_VALUE, Double.MAX_VALUE);
-    }
+  @Override
+  protected Tuple<Double, Double> defaultRange() {
+    return Tuple.of(-Double.MAX_VALUE, Double.MAX_VALUE);
+  }
 
-    @Override
-    protected boolean validChar(char c) {
-        return c == '.' || c == 'E' || c == '-';
-    }
+  @Override
+  protected boolean validChar(char c) {
+    return c == '.' || c == 'E' || c == '-';
+  }
 
-    @Override
-    protected String convertToString(Double obj) {
-        return Double.toString(obj);
-    }
+  @Override
+  protected String convertToString(Double obj) {
+    return Double.toString(obj);
+  }
 
-    @Override
-    protected Result<Double, Text> convertToNumber(String s) {
-        var num = Doubles.tryParse(s);
-        return num == null ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_double")) : Result.ok(num);
-    }
+  @Override
+  protected Result<Double, Text> convertToNumber(String s) {
+    var num = Doubles.tryParse(s);
+    return num == null
+        ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_double"))
+        : Result.ok(num);
+  }
 }

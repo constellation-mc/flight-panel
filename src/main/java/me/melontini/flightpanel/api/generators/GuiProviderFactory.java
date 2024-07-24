@@ -8,5 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface GuiProviderFactory {
 
-    @NotNull <T, A extends AbstractConfigElement<T, A>, S extends BaseElementBuilder<T, A, S>> Result<GuiProvider<T, A, S>, ? extends RuntimeException> createGuiProvider(GuiRegistry registry, FactoryContext context);
+  @NotNull <T, A extends AbstractConfigElement<T, A>, S extends BaseElementBuilder<T, A, S>>
+      Result<GuiProvider<T, A, S>, ? extends RuntimeException> createGuiProvider(
+          GuiRegistry registry, FactoryContext context);
 }

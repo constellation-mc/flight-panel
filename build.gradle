@@ -72,9 +72,9 @@ tasks.register("spotbugs", SpotBugsTask) { task ->
 spotless {
     java {
         removeUnusedImports()
+        palantirJavaFormat('2.47.0').style("GOOGLE")
         trimTrailingWhitespace()
         formatAnnotations()
-        importOrder('', 'java|javax', '\\#')
     }
 }
 

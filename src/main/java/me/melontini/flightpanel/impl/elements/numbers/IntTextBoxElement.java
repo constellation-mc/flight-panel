@@ -9,28 +9,30 @@ import net.minecraft.text.Text;
 
 public class IntTextBoxElement extends AbstractNumberTextBoxElement<Integer, IntTextBoxElement> {
 
-    public IntTextBoxElement(IntTextBoxBuilder builder) {
-        super(builder);
-    }
+  public IntTextBoxElement(IntTextBoxBuilder builder) {
+    super(builder);
+  }
 
-    @Override
-    protected Tuple<Integer, Integer> defaultRange() {
-        return Tuple.of(-Integer.MAX_VALUE, Integer.MAX_VALUE);
-    }
+  @Override
+  protected Tuple<Integer, Integer> defaultRange() {
+    return Tuple.of(-Integer.MAX_VALUE, Integer.MAX_VALUE);
+  }
 
-    @Override
-    protected boolean validChar(char c) {
-        return false;
-    }
+  @Override
+  protected boolean validChar(char c) {
+    return false;
+  }
 
-    @Override
-    protected String convertToString(Integer obj) {
-        return Integer.toString(obj);
-    }
+  @Override
+  protected String convertToString(Integer obj) {
+    return Integer.toString(obj);
+  }
 
-    @Override
-    protected Result<Integer, Text> convertToNumber(String s) {
-        var num = Ints.tryParse(s);
-        return num == null ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_int")) : Result.ok(num);
-    }
+  @Override
+  protected Result<Integer, Text> convertToNumber(String s) {
+    var num = Ints.tryParse(s);
+    return num == null
+        ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_int"))
+        : Result.ok(num);
+  }
 }
