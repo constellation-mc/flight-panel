@@ -36,12 +36,9 @@ public class CollapsibleObjectElement<T>
         .toList();
     this.collapsed = builder.dataOrElse(CollapsibleObjectBuilder.COLLAPSED, true);
     this.iconDrawer = IconDrawer.builder()
-        .width(12)
-        .height(12)
-        .u(0)
-        .v(0)
-        .textureWidth(64)
-        .textureHeight(64)
+        .dimensions(12, 12)
+        .uv(0, 0)
+        .textureDimensions(64, 64)
         .texture(ICONS)
         .build();
   }

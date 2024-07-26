@@ -11,7 +11,11 @@ import org.jetbrains.annotations.Nullable;
 public interface GuiProvider<
     T, A extends AbstractConfigElement<T, A>, SELF extends BaseElementBuilder<T, A, SELF>> {
 
-  @NotNull SELF provideGui(@Nullable T obj, @Nullable Supplier<@NotNull T> def, ProviderContext context);
+  @NotNull SELF provideGui(
+      @Nullable T obj,
+      @Nullable Supplier<@NotNull T> def,
+      GuiRegistry registry,
+      ProviderContext context);
 
   default Optional<T> value(T obj, Supplier<T> def) {
     if (obj != null) return Optional.of(obj);

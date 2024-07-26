@@ -4,10 +4,12 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.function.Supplier;
+import lombok.EqualsAndHashCode;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.util.DataType;
 import net.minecraft.text.Text;
 
+@EqualsAndHashCode
 public abstract class BaseElementBuilder<
     T, E extends AbstractConfigElement<T, E>, S extends BaseElementBuilder<T, E, S>> {
 
@@ -70,6 +72,11 @@ public abstract class BaseElementBuilder<
     O value = data(type);
     if (value == null) return def.get();
     return value;
+  }
+
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName() + "{" + "data=" + data + '}';
   }
 
   public abstract E build();

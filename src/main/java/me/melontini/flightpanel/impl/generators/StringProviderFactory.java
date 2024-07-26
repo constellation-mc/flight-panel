@@ -28,7 +28,7 @@ public class StringProviderFactory implements GuiProviderFactory {
       implements GuiProvider<String, StringTextBoxElement, StringTextBoxBuilder> {
     @Override
     public @NotNull StringTextBoxBuilder provideGui(
-        String obj, Supplier<String> def, ProviderContext context) {
+        String obj, Supplier<String> def, GuiRegistry registry, ProviderContext context) {
       return StringTextBoxBuilder.create(context.i18nOrEmpty(), value(obj, def).orElse(""))
           .defaultValue(def);
     }

@@ -67,9 +67,10 @@ public class CollapsibleObjectProviderFactory implements GuiProviderFactory {
       Result<GuiProvider<T, A, SELF>, ? extends RuntimeException> adapter =
           registry.createGuiProvider(
               registry,
-              FactoryContext.of(
-                  TypeContext.of(field.getGenericType(), field.getAnnotatedType()),
-                  accessor.withField(field).withType(field.getAnnotatedType())));
+              FactoryContext.builder()
+                  .types(TypeContext.ofField(field))
+                  .accessor(accessor.withAnnotatedField(field))
+                  .build());
       if (adapter.error().isPresent()) {
         errors.add(adapter);
         continue;
@@ -106,7 +107,7 @@ public class CollapsibleObjectProviderFactory implements GuiProviderFactory {
 
     @Override
     public @NotNull CollapsibleObjectBuilder<T> provideGui(
-        T obj, Supplier<T> def, ProviderContext ctx) {
+        T obj, Supplier<T> def, GuiRegistry registry, ProviderContext ctx) {
       if (def == null)
         def = () -> {
           try {
@@ -140,8 +141,9 @@ public class CollapsibleObjectProviderFactory implements GuiProviderFactory {
         var currentCtx = entryCtx.withI18n(iI13n);
         var builder = providers
             .get(field)
-            .provideGui(getField(field, value), () -> getField(field, defValue), currentCtx);
-        context.registry().transform(builder, field, currentCtx);
+            .provideGui(
+                getField(field, value), () -> getField(field, defValue), registry, currentCtx);
+        registry.transform(builder, field, currentCtx);
         if (builder instanceof ValuedElementBuilder<?, ?, ?> afb)
           afb.saveFunction(e -> setField(field, value, e));
         b.element(builder);

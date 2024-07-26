@@ -35,7 +35,10 @@ public class ListProviderFactory implements GuiProviderFactory {
     Result<GuiProvider<T, A, S>, ? extends RuntimeException> elementAdapter =
         registry.createGuiProvider(
             registry,
-            new FactoryContext(TypeContext.of(object, layer), context.accessor().withType(layer)));
+            FactoryContext.builder()
+                .types(TypeContext.of(object, layer))
+                .accessor(context.accessor().withType(layer))
+                .build());
 
     if (elementAdapter.error().isPresent())
       return Result.error(elementAdapter.error().get());
@@ -52,12 +55,12 @@ public class ListProviderFactory implements GuiProviderFactory {
 
     @Override
     public @NotNull NestedListBuilder<T> provideGui(
-        List<T> obj, Supplier<List<T>> def, ProviderContext context) {
+        List<T> obj, Supplier<List<T>> def, GuiRegistry registry, ProviderContext context) {
       var entryCtx = context.withGeneric(true);
       return NestedListBuilder.create(
               context.i18nOrEmpty(),
               value(obj, def).orElse(Collections.emptyList()),
-              (t, e) -> elementAdapter.provideGui(t, null, entryCtx).build(),
+              (t, e) -> elementAdapter.provideGui(t, null, registry, entryCtx).build(),
               () -> null)
           .defaultValue(def);
     }

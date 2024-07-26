@@ -77,12 +77,9 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
     this.resetButton.visible = defaultValue != null;
 
     this.iconDrawer = IconDrawer.builder()
-        .width(12)
-        .height(12)
-        .u(0)
-        .v(24)
-        .textureWidth(64)
-        .textureHeight(64)
+        .dimensions(12, 12)
+        .uv(0, 24)
+        .textureDimensions(64, 64)
         .texture(ICONS)
         .build();
 

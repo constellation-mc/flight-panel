@@ -79,12 +79,9 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
     }
 
     this.iconDrawer = IconDrawer.builder()
-        .width(12)
-        .height(12)
-        .u(0)
-        .v(12)
-        .textureWidth(64)
-        .textureHeight(64)
+        .dimensions(12, 12)
+        .uv(0, 12)
+        .textureDimensions(64, 64)
         .texture(ICONS)
         .build();
   }

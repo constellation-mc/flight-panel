@@ -36,4 +36,23 @@ public class IconDrawer {
     context.drawTexture(texture, x, y, 0, u, v, width, height, textureWidth, textureHeight);
     context.setShaderColor(1, 1, 1, 1);
   }
+
+  public static class IconDrawerBuilder {
+
+    public IconDrawerBuilder uv(int u, int v) {
+      return this.u(u).v(v);
+    }
+
+    public IconDrawerBuilder position(int x, int y) {
+      return this.x(x).y(y);
+    }
+
+    public IconDrawerBuilder dimensions(int width, int height) {
+      return this.width(width).height(height);
+    }
+
+    public IconDrawerBuilder textureDimensions(int width, int height) {
+      return this.textureWidth(width).textureHeight(height);
+    }
+  }
 }

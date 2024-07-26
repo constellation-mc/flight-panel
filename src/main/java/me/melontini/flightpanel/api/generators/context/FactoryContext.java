@@ -1,12 +1,14 @@
 package me.melontini.flightpanel.api.generators.context;
 
-import lombok.NonNull;
-import lombok.With;
+import lombok.*;
+import lombok.experimental.Accessors;
 
+@Builder
 @With
-public record FactoryContext(TypeContext types, HierarchyAccessor accessor) {
-
-  public static FactoryContext of(@NonNull TypeContext types, @NonNull HierarchyAccessor accessor) {
-    return new FactoryContext(types, accessor);
-  }
+@Value
+@Accessors(fluent = true)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class FactoryContext {
+  TypeContext types;
+  HierarchyAccessor accessor;
 }

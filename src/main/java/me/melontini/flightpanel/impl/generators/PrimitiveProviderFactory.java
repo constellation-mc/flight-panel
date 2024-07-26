@@ -77,7 +77,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Integer, IntSliderElement, IntSliderBuilder> {
     @Override
     public @NotNull IntSliderBuilder provideGui(
-        Integer obj, Supplier<Integer> def, ProviderContext context) {
+        Integer obj, Supplier<Integer> def, GuiRegistry registry, ProviderContext context) {
       return IntSliderBuilder.create(
               context.i18nOrEmpty(),
               value(obj, def).orElse((int) ranged.from()),
@@ -91,7 +91,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Long, LongSliderElement, LongSliderBuilder> {
     @Override
     public @NotNull LongSliderBuilder provideGui(
-        Long obj, Supplier<Long> def, ProviderContext context) {
+        Long obj, Supplier<Long> def, GuiRegistry registry, ProviderContext context) {
       return LongSliderBuilder.create(
               context.i18nOrEmpty(),
               value(obj, def).orElse((long) ranged.from()),
@@ -105,7 +105,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Double, DoubleSliderElement, DoubleSliderBuilder> {
     @Override
     public @NotNull DoubleSliderBuilder provideGui(
-        Double obj, Supplier<Double> def, ProviderContext context) {
+        Double obj, Supplier<Double> def, GuiRegistry registry, ProviderContext context) {
       return DoubleSliderBuilder.create(
               context.i18nOrEmpty(),
               value(obj, def).orElse(ranged.from()),
@@ -121,7 +121,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Float, FloatSliderElement, FloatSliderBuilder> {
     @Override
     public @NotNull FloatSliderBuilder provideGui(
-        Float obj, Supplier<Float> def, ProviderContext context) {
+        Float obj, Supplier<Float> def, GuiRegistry registry, ProviderContext context) {
       return FloatSliderBuilder.create(
               context.i18nOrEmpty(),
               value(obj, def).orElse((float) ranged.from()),
@@ -137,7 +137,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Integer, IntTextBoxElement, IntTextBoxBuilder> {
     @Override
     public @NotNull IntTextBoxBuilder provideGui(
-        Integer obj, Supplier<Integer> def, ProviderContext context) {
+        Integer obj, Supplier<Integer> def, GuiRegistry registry, ProviderContext context) {
       var b = IntTextBoxBuilder.create(
           context.i18nOrEmpty(), value(obj, def).orElse(ranged != null ? (int) ranged.from() : 0));
       if (ranged != null) b.min((int) ranged.from()).max((int) ranged.to());
@@ -149,7 +149,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Long, LongTextBoxElement, LongTextBoxBuilder> {
     @Override
     public @NotNull LongTextBoxBuilder provideGui(
-        Long obj, Supplier<Long> def, ProviderContext context) {
+        Long obj, Supplier<Long> def, GuiRegistry registry, ProviderContext context) {
       var b = LongTextBoxBuilder.create(
           context.i18nOrEmpty(), value(obj, def).orElse(ranged != null ? (long) ranged.from() : 0));
       if (ranged != null) b.min((long) ranged.from()).max((long) ranged.to());
@@ -161,7 +161,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Float, FloatTextBoxElement, FloatTextBoxBuilder> {
     @Override
     public @NotNull FloatTextBoxBuilder provideGui(
-        Float obj, Supplier<Float> def, ProviderContext context) {
+        Float obj, Supplier<Float> def, GuiRegistry registry, ProviderContext context) {
       var b = FloatTextBoxBuilder.create(
           context.i18nOrEmpty(),
           value(obj, def).orElse(ranged != null ? (float) ranged.from() : 0));
@@ -174,7 +174,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Double, DoubleTextBoxElement, DoubleTextBoxBuilder> {
     @Override
     public @NotNull DoubleTextBoxBuilder provideGui(
-        Double obj, Supplier<Double> def, ProviderContext context) {
+        Double obj, Supplier<Double> def, GuiRegistry registry, ProviderContext context) {
       var b = DoubleTextBoxBuilder.create(
           context.i18nOrEmpty(), value(obj, def).orElse(ranged != null ? ranged.from() : 0));
       if (ranged != null) b.min(ranged.from()).max(ranged.to());
@@ -186,7 +186,7 @@ public class PrimitiveProviderFactory implements GuiProviderFactory {
       implements GuiProvider<Boolean, BooleanToggleElement, BooleanToggleBuilder> {
     @Override
     public @NotNull BooleanToggleBuilder provideGui(
-        Boolean obj, Supplier<Boolean> def, ProviderContext context) {
+        Boolean obj, Supplier<Boolean> def, GuiRegistry registry, ProviderContext context) {
       return BooleanToggleBuilder.create(context.i18nOrEmpty(), value(obj, def).orElse(false))
           .defaultValue(def);
     }

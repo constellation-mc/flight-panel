@@ -53,7 +53,10 @@ public class EnumProviderFactory implements GuiProviderFactory {
       implements GuiProvider<T, ListButtonElement<T>, ListButtonBuilder<T>> {
     @Override
     public @NotNull ListButtonBuilder<T> provideGui(
-        @Nullable T obj, @Nullable Supplier<@NotNull T> def, ProviderContext context) {
+        @Nullable T obj,
+        @Nullable Supplier<@NotNull T> def,
+        GuiRegistry registry,
+        ProviderContext context) {
       return ListButtonBuilder.create(
               context.i18nOrEmpty(),
               value(obj, def).orElse((T) values.get(0)),
@@ -68,7 +71,10 @@ public class EnumProviderFactory implements GuiProviderFactory {
       implements GuiProvider<T, ListSliderElement<T>, ListSliderBuilder<T>> {
     @Override
     public @NotNull ListSliderBuilder<T> provideGui(
-        @Nullable T obj, @Nullable Supplier<@NotNull T> def, ProviderContext context) {
+        @Nullable T obj,
+        @Nullable Supplier<@NotNull T> def,
+        GuiRegistry registry,
+        ProviderContext context) {
       return ListSliderBuilder.create(
               context.i18nOrEmpty(),
               value(obj, def).orElse((T) values.get(0)),
