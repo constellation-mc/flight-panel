@@ -21,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 public class TabNavigationWidget extends AbstractParentElement
     implements Drawable, Element, Selectable, TabButtonWidget.MousePosChecker {
 
+  private static final ThreadLocal<Boolean> MOUSE_LOCK = ThreadLocal.withInitial(() -> false);
+
   private static final Text USAGE_NARRATION_TEXT =
       Text.translatable("narration.tab_navigation.usage");
   private final GridWidget grid;
@@ -72,6 +74,7 @@ public class TabNavigationWidget extends AbstractParentElement
     super.setFocused(focused);
     if (focused instanceof TabButtonWidget tabButtonWidget) {
       this.tabManager.setCurrentTab(tabButtonWidget.getTab(), true);
+      if (MOUSE_LOCK.get()) return;
 
       int scroll = (tabButtonWidget.getX() + (tabButtonWidget.getWidth() / 2)) - this.grid.getX();
 
@@ -95,7 +98,12 @@ public class TabNavigationWidget extends AbstractParentElement
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
     if (!this.isTabAreaHovered(mouseX, mouseY)) return false;
-    return super.mouseClicked(mouseX, mouseY, button);
+    try {
+      MOUSE_LOCK.set(Boolean.TRUE);
+      return super.mouseClicked(mouseX, mouseY, button);
+    } finally {
+      MOUSE_LOCK.remove();
+    }
   }
 
   @Override
