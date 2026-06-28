@@ -1,6 +1,7 @@
 package me.melontini.flightpanel.api.generators;
 
 import com.google.common.collect.ImmutableList;
+import dev.zenfyr.pulsar.api.util.Result;
 import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Supplier;
 import lombok.NonNull;
-import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;

@@ -3,13 +3,13 @@ package me.melontini.flightpanel.impl.generators;
 import static me.melontini.flightpanel.api.generators.Transformations.Range;
 import static me.melontini.flightpanel.api.generators.Transformations.Slider;
 
+import dev.zenfyr.pulsar.api.util.Result;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.BooleanToggleBuilder;
 import me.melontini.flightpanel.api.builders.elements.numbers.*;

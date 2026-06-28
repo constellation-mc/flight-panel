@@ -1,10 +1,10 @@
 package me.melontini.flightpanel.impl.generators;
 
+import dev.zenfyr.pulsar.api.util.Result;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.collections.ListButtonBuilder;
 import me.melontini.flightpanel.api.builders.elements.collections.ListSliderBuilder;

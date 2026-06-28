@@ -3,10 +3,10 @@ package me.melontini.flightpanel.impl;
 import static me.melontini.flightpanel.api.generators.Transformations.*;
 
 import com.google.common.collect.Lists;
+import dev.zenfyr.pulsar.api.util.MathUtil;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import me.melontini.dark_matter.api.base.util.MathUtil;
 import me.melontini.flightpanel.api.builders.ConfigScreenBuilder;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.generators.GuiRegistry;

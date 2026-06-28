@@ -1,10 +1,10 @@
 package me.melontini.flightpanel.impl.generators;
 
+import dev.zenfyr.pulsar.api.util.Result;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Supplier;
-import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
 import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;

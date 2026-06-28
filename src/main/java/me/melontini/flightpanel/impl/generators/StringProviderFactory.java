@@ -1,7 +1,7 @@
 package me.melontini.flightpanel.impl.generators;
 
+import dev.zenfyr.pulsar.api.util.Result;
 import java.util.function.Supplier;
-import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.builders.elements.StringTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;

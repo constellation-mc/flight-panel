@@ -1,9 +1,9 @@
 package me.melontini.flightpanel.api.elements;
 
+import dev.zenfyr.pulsar.api.util.Result;
+import dev.zenfyr.pulsar.api.util.tuple.Tuple;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import me.melontini.dark_matter.api.base.util.Result;
-import me.melontini.dark_matter.api.base.util.tuple.Tuple;
 import me.melontini.flightpanel.api.builders.elements.numbers.RangedNumberElementBuilder;
 import net.minecraft.text.Text;
 

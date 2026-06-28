@@ -1,12 +1,12 @@
 package me.melontini.flightpanel.impl.widgets;
 
 import com.google.common.collect.ImmutableList;
+import dev.zenfyr.pulsar.api.util.ColorUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.util.ConfigScreenProxy;
 import me.melontini.flightpanel.api.util.SquareData;

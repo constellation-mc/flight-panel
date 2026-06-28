@@ -1,10 +1,10 @@
 package me.melontini.flightpanel.impl.widgets;
 
+import dev.zenfyr.pulsar.api.util.ColorUtil;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import me.melontini.dark_matter.api.base.util.ColorUtil;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 

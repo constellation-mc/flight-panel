@@ -2,10 +2,10 @@ package me.melontini.flightpanel.impl;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.zenfyr.pulsar.api.util.ColorUtil;
+import dev.zenfyr.pulsar.api.util.MakeSure;
 import java.util.*;
 import java.util.stream.Collectors;
-import me.melontini.dark_matter.api.base.util.ColorUtil;
-import me.melontini.dark_matter.api.base.util.MakeSure;
 import me.melontini.flightpanel.api.builders.CategoryBuilder;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;

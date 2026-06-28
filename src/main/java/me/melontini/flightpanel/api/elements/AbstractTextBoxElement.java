@@ -1,9 +1,9 @@
 package me.melontini.flightpanel.api.elements;
 
+import dev.zenfyr.pulsar.api.util.Result;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import me.melontini.dark_matter.api.base.util.Result;
 import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
 import me.melontini.flightpanel.api.util.SquareData;
 import net.minecraft.client.gui.DrawContext;

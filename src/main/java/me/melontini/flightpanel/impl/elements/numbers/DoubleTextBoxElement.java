@@ -1,8 +1,8 @@
 package me.melontini.flightpanel.impl.elements.numbers;
 
 import com.google.common.primitives.Doubles;
-import me.melontini.dark_matter.api.base.util.Result;
-import me.melontini.dark_matter.api.base.util.tuple.Tuple;
+import dev.zenfyr.pulsar.api.util.Result;
+import dev.zenfyr.pulsar.api.util.tuple.Tuple;
 import me.melontini.flightpanel.api.builders.elements.numbers.DoubleTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberTextBoxElement;
 import net.minecraft.text.Text;

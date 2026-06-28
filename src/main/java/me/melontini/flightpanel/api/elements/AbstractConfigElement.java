@@ -1,11 +1,11 @@
 package me.melontini.flightpanel.api.elements;
 
+import dev.zenfyr.pulsar.api.util.ColorUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import me.melontini.dark_matter.api.base.util.ColorUtil;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.util.ConfigScreenProxy;
 import me.melontini.flightpanel.api.util.SquareData;
