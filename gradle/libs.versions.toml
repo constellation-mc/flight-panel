@@ -1,16 +1,11 @@
-[versions]
-dark-matter = "4.1.0-1.20.1-build.86"
-
 [libraries]
-fabric-loader = { group = "net.fabricmc", name = "fabric-loader", version = "0.16.5" }
-fabric-api = { group = "net.fabricmc.fabric-api", name = "fabric-api", version = "0.92.1+1.20.1" }
+fabric-loader = { group = "net.fabricmc", name = "fabric-loader", version = "0.19.3" }
 
-dark-matter-base = { group = "me.melontini", name = "dark-matter-base", version.ref = "dark-matter" }
-dark-matter-minecraft = { group = "me.melontini", name = "dark-matter-minecraft", version.ref = "dark-matter" }
+fabric-api = { group = "net.fabricmc.fabric-api", name = "fabric-api", version = "0.92.8+1.20.1" }
+pulsar = { group = "dev.zenfyr", name = "pulsar-fabric", version = "1.0.0+mc1.20.1" }
 
 [plugins]
-fabric-loom = { id = "fabric-loom", version = "1.7.4" }
-lombok = { id = "io.freefair.lombok", version = "8.10"}
-spotbugs-base = { id = "com.github.spotbugs-base", version = "6.0.23" }
-spotless = { id = "com.diffplug.spotless", version = "6.25.0" }
-modmuss50-publish = { id = "me.modmuss50.mod-publish-plugin", version = "0.7.4" }
+fabric-loom = { id = "net.fabricmc.fabric-loom-remap", version = "1.17.12" }
+lombok = { id = "io.freefair.lombok", version = "9.4.0"}
+spotless = { id = "com.diffplug.spotless", version = "8.6.0" }
+modmuss50-publish = { id = "me.modmuss50.mod-publish-plugin", version = "2.1.1" }
