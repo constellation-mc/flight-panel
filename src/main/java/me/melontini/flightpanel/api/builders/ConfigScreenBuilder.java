@@ -41,9 +41,6 @@ public class ConfigScreenBuilder {
 
   public ConfigScreen build() {
     return new ConfigScreen(
-        title,
-        parent == null ? Minecraft.getInstance().screen : parent,
-        categories,
-        saveFunction);
+        title, parent == null ? Minecraft.getInstance().screen : parent, categories, saveFunction);
   }
 }

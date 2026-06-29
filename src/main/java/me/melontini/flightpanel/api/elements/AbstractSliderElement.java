@@ -41,8 +41,7 @@ public abstract class AbstractSliderElement<T, S extends AbstractSliderElement<T
   public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     super.render(context, mouseX, mouseY, delta);
 
-    context.drawString(
-        client.font, displayName(mouseX, mouseY), pos.x(), pos.y() + 7, -1);
+    context.drawString(client.font, displayName(mouseX, mouseY), pos.x(), pos.y() + 7, -1);
     this.widget.render(context, mouseX, mouseY, delta);
   }
 

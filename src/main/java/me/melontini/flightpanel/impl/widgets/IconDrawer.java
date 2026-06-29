@@ -28,8 +28,7 @@ public class IconDrawer {
           ColorUtil.getGreenF(color) * 0.25F,
           ColorUtil.getBlueF(color) * 0.25F,
           1);
-      context.blit(
-          texture, x + 1, y + 1, 0, u, v, width, height, textureWidth, textureHeight);
+      context.blit(texture, x + 1, y + 1, 0, u, v, width, height, textureWidth, textureHeight);
     }
     context.setColor(
         ColorUtil.getRedF(color), ColorUtil.getGreenF(color), ColorUtil.getBlueF(color), 1);

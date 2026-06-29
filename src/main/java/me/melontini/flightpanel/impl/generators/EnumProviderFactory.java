@@ -46,9 +46,7 @@ public class EnumProviderFactory implements GuiProviderFactory {
           ? i18n.substring(0, i18n.indexOf(".option") + ".option".length())
           : i18n;
       String classKey = String.format("%s.%s.%s", remainingKey, type.getSimpleName(), t.name());
-      return I18n.exists(classKey)
-          ? Component.translatable(classKey)
-          : Component.literal(t.name());
+      return I18n.exists(classKey) ? Component.translatable(classKey) : Component.literal(t.name());
     };
   }
 

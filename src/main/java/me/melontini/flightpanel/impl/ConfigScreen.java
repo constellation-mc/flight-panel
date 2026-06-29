@@ -287,15 +287,7 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     BufferBuilder bufferBuilder = tesselator.getBuilder();
     bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
     fillGradientHorizontal(
-        matrices.last().pose(),
-        bufferBuilder,
-        startX,
-        startY,
-        endX,
-        endY,
-        0,
-        colorStart,
-        colorEnd);
+        matrices.last().pose(), bufferBuilder, startX, startY, endX, endY, 0, colorStart, colorEnd);
     tesselator.end();
     RenderSystem.disableBlend();
   }

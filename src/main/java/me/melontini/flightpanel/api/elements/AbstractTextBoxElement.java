@@ -21,13 +21,12 @@ public abstract class AbstractTextBoxElement<T, S extends AbstractTextBoxElement
 
   public AbstractTextBoxElement(ValuedElementBuilder<T, S, ?> builder) {
     super(builder);
-    this.inputField =
-        new EditBox(client.font, 0, 0, 88 - 4, 18, Component.empty()) {
-          @Override
-          public void insertText(String text) {
-            super.insertText(sanitizeString(text));
-          }
-        };
+    this.inputField = new EditBox(client.font, 0, 0, 88 - 4, 18, Component.empty()) {
+      @Override
+      public void insertText(String text) {
+        super.insertText(sanitizeString(text));
+      }
+    };
     this.inputField.setMaxLength(Integer.MAX_VALUE);
     this.inputField.setValue(convertToString(value()));
 
@@ -74,8 +73,7 @@ public abstract class AbstractTextBoxElement<T, S extends AbstractTextBoxElement
   public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     super.render(context, mouseX, mouseY, delta);
 
-    context.drawString(
-        client.font, displayName(mouseX, mouseY), pos.x(), pos.y() + 7, -1);
+    context.drawString(client.font, displayName(mouseX, mouseY), pos.x(), pos.y() + 7, -1);
     this.inputField.render(context, mouseX, mouseY, delta);
   }
 
