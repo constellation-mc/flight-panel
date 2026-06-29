@@ -1,6 +1,6 @@
 # Flight Panel
 
-![License MIT](https://raw.githubusercontent.com/melontini/mini-badges/main/licenses/MIT.svg)
+![License MIT](https://raw.githubusercontent.com/zenfyrdev/mini-badges/v1/licenses/mit/mit.svg)
 
 > [!CAUTION]
 > **This project is in early stages of development!** <br/>

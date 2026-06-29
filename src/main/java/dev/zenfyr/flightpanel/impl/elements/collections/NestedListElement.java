@@ -1,0 +1,303 @@
+package dev.zenfyr.flightpanel.impl.elements.collections;
+
+import dev.zenfyr.flightpanel.api.builders.elements.CollapsibleObjectBuilder;
+import dev.zenfyr.flightpanel.api.builders.elements.collections.NestedListBuilder;
+import dev.zenfyr.flightpanel.api.elements.AbstractConfigElement;
+import dev.zenfyr.flightpanel.api.elements.AbstractValuedElement;
+import dev.zenfyr.flightpanel.api.util.SquareData;
+import dev.zenfyr.flightpanel.impl.widgets.IconDrawer;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import org.jetbrains.annotations.Nullable;
+
+public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedListElement<T>> {
+
+  private static final ResourceLocation ICONS =
+      ResourceLocation.tryBuild("flight-panel", "textures/gui/gui_icons.png");
+
+  private final List<NestedCell> children = new ArrayList<>();
+  private final Button newElementButton;
+  private final boolean immutable;
+  private final BiFunction<T, NestedListElement<T>, AbstractValuedElement<T, ?>> cellFactory;
+  private final Supplier<T> defaultElementValue;
+
+  private boolean collapsed;
+  private final List<NestedCell> visibleChildren = new ArrayList<>();
+  private final IconDrawer iconDrawer;
+
+  public NestedListElement(NestedListBuilder<T> builder) {
+    super(builder);
+    this.cellFactory = builder.dataOrThrow(builder.cellFactoryType());
+    this.immutable = builder.dataOrElse(NestedListBuilder.IMMUTABLE, false);
+    this.defaultElementValue = builder.dataOrThrow(builder.defaultElementType());
+    this.collapsed = builder.dataOrElse(CollapsibleObjectBuilder.COLLAPSED, true);
+
+    this.newElementButton =
+        new Button(
+            0,
+            0,
+            20,
+            20,
+            Component.literal("+"),
+            button -> {
+              var list = new ArrayList<>(NestedListElement.this.value());
+              var cell = new NestedCell(
+                  this.cellFactory.apply(this.defaultElementValue.get(), this), list.size());
+              this.children.add(cell);
+              list.add(cell.element()
+                  .value()); // The factory/element may do addition transformations on the object.
+              value(list);
+              this.collapsed = false;
+              this.proxy().rebuildPositions();
+            },
+            Supplier::get) {
+          @Override
+          protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+            this.isHovered = this.isHovered
+                && NestedListElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
+            super.renderWidget(context, mouseX, mouseY, delta);
+          }
+        };
+    this.newElementButton.visible = !immutable;
+
+    for (int i = 0; i < value().size(); i++) {
+      T t = value().get(i);
+      this.children.add(new NestedCell(cellFactory.apply(t, this), i));
+    }
+
+    this.iconDrawer = IconDrawer.builder()
+        .dimensions(12, 12)
+        .uv(0, 12)
+        .textureDimensions(64, 64)
+        .texture(ICONS)
+        .build();
+  }
+
+  @Override
+  protected void resetToDefault(List<T> def) {
+    this.children.clear();
+    for (int i = 0; i < def.size(); i++) {
+      T t = def.get(i);
+      this.children.add(new NestedCell(this.cellFactory.apply(t, this), i));
+    }
+    value(def);
+    this.proxy().rebuildPositions();
+  }
+
+  @Override
+  public void rebuildPositions(SquareData self, SquareData parent) {
+    super.rebuildPositions(self, parent);
+
+    int childY = self.endY();
+    for (NestedCell child : this.elements()) {
+      child
+          .element()
+          .rebuildPositions(
+              SquareData.of(
+                  self.x() + 16, childY, self.width() - 16, child.element().getBaseElementHeight()),
+              parent);
+      childY += child.element().getElementHeight() + 1;
+    }
+
+    this.newElementButton.setX(self.endX() - (resetButton.visible ? 42 : 21));
+    this.newElementButton.setY(self.y() + 1);
+
+    this.visibleChildren.clear();
+    if (!collapsed) {
+      for (NestedCell child : this.children) {
+        if (child.element.pos().withHeight(child.element.getElementHeight()).intersects(parent))
+          visibleChildren.add(child);
+      }
+    }
+    this.iconDrawer.x(self.x() + 1).y(self.y() + 4).u(collapsed ? 12 : 0);
+  }
+
+  @Override
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    super.render(context, mouseX, mouseY, delta);
+    this.visibleChildren.forEach(child -> child.render(context, mouseX, mouseY, delta));
+
+    var dn = displayName(mouseX, mouseY);
+    int color =
+        Optional.ofNullable(dn.getStyle().getColor()).map(TextColor::getValue).orElse(-1);
+    this.iconDrawer.color(color).renderIcon(context, true);
+    context.drawString(client.font, dn, pos.x() + 12 + 4, pos.y() + 7, -1);
+    this.newElementButton.render(context, mouseX, mouseY, delta);
+  }
+
+  @Override
+  public void tick() {
+    this.elements().forEach(NestedCell::tick);
+  }
+
+  @Override
+  public void unfocus() {
+    super.unfocus();
+    this.children.forEach(NestedCell::unfocus);
+  }
+
+  @Override
+  public boolean onWidgetClicked(double mouseX, double mouseY, int button) {
+    if (button != 0) return false;
+    collapsed = !collapsed;
+    client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    this.proxy().rebuildPositions();
+    return true;
+  }
+
+  @Override
+  public @Nullable AbstractConfigElement<?, ?> hoveredChildOrSelf(int mouseX, int mouseY) {
+    var r = super.hoveredChildOrSelf(mouseX, mouseY);
+    if (r != null) return r;
+
+    for (NestedCell cell : this.visibleChildren) {
+      r = cell.element().hoveredChildOrSelf(mouseX, mouseY);
+      if (r != null) return r;
+    }
+    return null;
+  }
+
+  @Override
+  public boolean requiresRestart() {
+    return super.requiresRestart()
+        || this.children.stream().anyMatch(cell -> cell.element().requiresRestart());
+  }
+
+  @Override
+  public @Nullable Component getElementError() {
+    List<Component> texts = this.children.stream()
+        .map(NestedCell::element)
+        .map(AbstractConfigElement::getElementError)
+        .filter(Objects::nonNull)
+        .toList();
+
+    if (texts.size() == 1) return texts.get(0);
+    if (texts.size() > 1) return Component.translatable("service.flight-panel.error.list.multiple");
+    return null;
+  }
+
+  @Override
+  public boolean modified() {
+    return super.modified()
+        || this.children.stream().anyMatch(cell -> cell.element().modified());
+  }
+
+  @Override
+  public int getElementHeight() {
+    return getBaseElementHeight()
+        + elements().stream()
+            .mapToInt(value -> value.element().getElementHeight() + 1)
+            .sum();
+  }
+
+  @Override
+  public void save() {
+    this.children.forEach(cell -> cell.element().save());
+    super.save();
+  }
+
+  public List<NestedCell> elements() {
+    return collapsed ? Collections.emptyList() : this.children;
+  }
+
+  @Override
+  public List<? extends GuiEventListener> children() {
+    var buttons = List.of(this.resetButton, this.newElementButton);
+    return collapsed
+        ? buttons
+        : Stream.concat(buttons.stream(), elements().stream()).toList();
+  }
+
+  public final class NestedCell extends AbstractContainerEventHandler implements Renderable {
+
+    private final AbstractValuedElement<T, ?> element;
+    private final Button removeWidget;
+    private int index;
+
+    private NestedCell(AbstractValuedElement<T, ?> element, int index) {
+      this.element = element;
+      this.index = index;
+
+      this.element.listenToChange((t, t2) -> {
+        var list = new ArrayList<>(NestedListElement.this.value());
+        list.set(index(), t2);
+        NestedListElement.this.value(list);
+      });
+
+      this.removeWidget =
+          new Button(
+              0,
+              0,
+              12,
+              12,
+              Component.literal("-").withStyle(ChatFormatting.RED),
+              button -> {
+                var list = new ArrayList<>(NestedListElement.this.value());
+
+                if (index() != list.size() - 1) {
+                  var sub = NestedListElement.this.children.subList(
+                      index() + 1, NestedListElement.this.children.size());
+                  sub.forEach(nestedCell -> nestedCell.index--);
+                }
+                list.remove(index());
+                NestedListElement.this.children.remove(index());
+
+                NestedListElement.this.value(list);
+                NestedListElement.this.proxy().rebuildPositions();
+              },
+              Supplier::get) {
+            @Override
+            protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+              this.isHovered = this.isHovered
+                  && NestedListElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
+              super.renderWidget(context, mouseX, mouseY, delta);
+            }
+          };
+      this.removeWidget.visible = !NestedListElement.this.immutable;
+    }
+
+    public AbstractValuedElement<T, ?> element() {
+      return element;
+    }
+
+    public int index() {
+      return index;
+    }
+
+    @Override
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+      this.element.render(context, mouseX, mouseY, delta);
+
+      this.removeWidget.setX(this.element.pos().x() - 16);
+      this.removeWidget.setY(this.element.pos().y() + 5);
+      this.removeWidget.render(context, mouseX, mouseY, delta);
+    }
+
+    public void unfocus() {
+      this.setFocused(null);
+      this.element.unfocus();
+    }
+
+    public void tick() {
+      this.element.tick();
+    }
+
+    @Override
+    public List<? extends GuiEventListener> children() {
+      return List.of(removeWidget, element);
+    }
+  }
+}

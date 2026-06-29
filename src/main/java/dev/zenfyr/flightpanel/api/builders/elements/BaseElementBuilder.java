@@ -1,0 +1,83 @@
+package dev.zenfyr.flightpanel.api.builders.elements;
+
+import dev.zenfyr.flightpanel.api.elements.AbstractConfigElement;
+import dev.zenfyr.flightpanel.api.util.DataType;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.function.Supplier;
+import lombok.EqualsAndHashCode;
+import net.minecraft.network.chat.Component;
+
+@EqualsAndHashCode
+public abstract class BaseElementBuilder<
+    T, E extends AbstractConfigElement<T, E>, S extends BaseElementBuilder<T, E, S>> {
+
+  public static DataType<Component> ELEMENT_NAME = DataType.of();
+  public static DataType<Boolean> REQUIRES_RESTART = DataType.of();
+  public static DataType<List<Component>> DESCRIPTION = DataType.of();
+
+  private final IdentityHashMap<DataType<?>, Object> data = new IdentityHashMap<>();
+
+  protected BaseElementBuilder(Component elementName) {
+    this.data(ELEMENT_NAME, elementName);
+  }
+
+  public S elementName(Component text) {
+    return data(ELEMENT_NAME, text);
+  }
+
+  public S requireRestart(boolean value) {
+    return data(REQUIRES_RESTART, value);
+  }
+
+  public S requireRestart() {
+    return requireRestart(true);
+  }
+
+  public S description(Component text) {
+    return data(DESCRIPTION, Collections.singletonList(text));
+  }
+
+  public S description(List<Component> texts) {
+    return data(DESCRIPTION, texts);
+  }
+
+  public final S self() {
+    return (S) this;
+  }
+
+  public final <O> S data(DataType<O> type, O value) {
+    this.data.put(type, value);
+    return self();
+  }
+
+  public final <O> O data(DataType<O> type) {
+    return (O) this.data.get(type);
+  }
+
+  public final <O> O dataOrThrow(DataType<O> type) {
+    O value = data(type);
+    if (value == null) throw new IllegalStateException();
+    return value;
+  }
+
+  public final <O> O dataOrElse(DataType<O> type, O def) {
+    O value = data(type);
+    if (value == null) return def;
+    return value;
+  }
+
+  public final <O> O dataOrElseGet(DataType<O> type, Supplier<O> def) {
+    O value = data(type);
+    if (value == null) return def.get();
+    return value;
+  }
+
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName() + "{" + "data=" + data + '}';
+  }
+
+  public abstract E build();
+}

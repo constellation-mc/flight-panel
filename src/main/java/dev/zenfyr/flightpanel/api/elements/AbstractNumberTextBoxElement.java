@@ -1,0 +1,50 @@
+package dev.zenfyr.flightpanel.api.elements;
+
+import dev.zenfyr.flightpanel.api.builders.elements.numbers.RangedNumberElementBuilder;
+import dev.zenfyr.pulsar.api.util.Result;
+import dev.zenfyr.pulsar.api.util.tuple.Tuple;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import net.minecraft.network.chat.Component;
+
+@Accessors(fluent = true)
+public abstract class AbstractNumberTextBoxElement<
+        T extends Number & Comparable<T>, S extends AbstractNumberTextBoxElement<T, S>>
+    extends AbstractTextBoxElement<T, S> {
+
+  @Getter
+  private final T min, max;
+
+  public AbstractNumberTextBoxElement(RangedNumberElementBuilder<T, S, ?> builder) {
+    super(builder);
+    this.min = builder.dataOrElse(builder.minType(), defaultRange().left());
+    this.max = builder.dataOrElse(builder.maxType(), defaultRange().right());
+  }
+
+  protected abstract Tuple<T, T> defaultRange();
+
+  protected abstract boolean validChar(char c);
+
+  @Override
+  protected final Result<T, Component> convertFromString(String s) {
+    Result<T, Component> result = convertToNumber(s);
+    if (result.error().isPresent()) return result;
+    T num = result.value().orElseThrow(IllegalStateException::new);
+
+    if (num.compareTo(max) > 0)
+      return Result.error(Component.translatable("service.flight-panel.error.number.max", max()));
+    if (num.compareTo(min) < 0)
+      return Result.error(Component.translatable("service.flight-panel.error.number.min", min()));
+    return Result.ok(num);
+  }
+
+  protected abstract Result<T, Component> convertToNumber(String s);
+
+  @Override
+  protected String sanitizeString(String s) {
+    StringBuilder builder = new StringBuilder();
+    char[] chars = s.toCharArray();
+    for (char c : chars) if (Character.isDigit(c) || validChar(c)) builder.append(c);
+    return builder.toString();
+  }
+}

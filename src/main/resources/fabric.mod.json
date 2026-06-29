@@ -3,19 +3,19 @@
   "id": "flight-panel",
   "version": "${version}",
   "name": "Flight Panel",
-  "description": "Every captain needs controls!",
+  "description": "Config screen generation utility",
   "authors": [
-    "melontini"
+    "zenfyr"
   ],
   "contact": {
-    "repo": "https://github.com/melontini/flight-panel"
+    "repo": "https://github.com/constellation-mc/flight-panel"
   },
   "license": "MIT",
   "icon": "icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
-      "me.melontini.flightpanel.impl.TestInit"
+      "dev.zenfyr.flightpanel.impl.TestInit"
     ]
   },
   "mixins": [

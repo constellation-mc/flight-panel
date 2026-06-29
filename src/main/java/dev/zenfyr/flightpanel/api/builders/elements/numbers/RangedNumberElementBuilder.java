@@ -1,0 +1,36 @@
+package dev.zenfyr.flightpanel.api.builders.elements.numbers;
+
+import dev.zenfyr.flightpanel.api.builders.elements.ValuedElementBuilder;
+import dev.zenfyr.flightpanel.api.elements.AbstractValuedElement;
+import dev.zenfyr.flightpanel.api.util.DataType;
+import net.minecraft.network.chat.Component;
+
+public abstract class RangedNumberElementBuilder<
+        T extends Number,
+        E extends AbstractValuedElement<T, E>,
+        S extends RangedNumberElementBuilder<T, E, S>>
+    extends ValuedElementBuilder<T, E, S> {
+
+  public static final DataType<Number> MIN = DataType.of();
+  public static final DataType<Number> MAX = DataType.of();
+
+  protected RangedNumberElementBuilder(Component elementName, T value) {
+    super(elementName, value);
+  }
+
+  public DataType<T> minType() {
+    return (DataType<T>) MIN;
+  }
+
+  public DataType<T> maxType() {
+    return (DataType<T>) MAX;
+  }
+
+  public S min(T min) {
+    return data(minType(), min);
+  }
+
+  public S max(T max) {
+    return data(maxType(), max);
+  }
+}
