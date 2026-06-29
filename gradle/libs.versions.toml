@@ -6,6 +6,6 @@ pulsar = { group = "dev.zenfyr", name = "pulsar-fabric", version = "1.0.0+mc1.20
 
 [plugins]
 fabric-loom = { id = "net.fabricmc.fabric-loom-remap", version = "1.17.12" }
-lombok = { id = "io.freefair.lombok", version = "9.4.0"}
+lombok = { id = "io.freefair.lombok", version = "9.5.0"}
 spotless = { id = "com.diffplug.spotless", version = "8.6.0" }
 modmuss50-publish = { id = "me.modmuss50.mod-publish-plugin", version = "2.1.1" }
