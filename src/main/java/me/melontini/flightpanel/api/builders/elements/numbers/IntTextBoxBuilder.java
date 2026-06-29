@@ -1,16 +1,16 @@
 package me.melontini.flightpanel.api.builders.elements.numbers;
 
 import me.melontini.flightpanel.impl.elements.numbers.IntTextBoxElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class IntTextBoxBuilder
     extends RangedNumberElementBuilder<Integer, IntTextBoxElement, IntTextBoxBuilder> {
 
-  public static IntTextBoxBuilder create(Text elementName, int value) {
+  public static IntTextBoxBuilder create(Component elementName, int value) {
     return new IntTextBoxBuilder(elementName, value);
   }
 
-  protected IntTextBoxBuilder(Text elementName, int value) {
+  protected IntTextBoxBuilder(Component elementName, int value) {
     super(elementName, value);
   }
 

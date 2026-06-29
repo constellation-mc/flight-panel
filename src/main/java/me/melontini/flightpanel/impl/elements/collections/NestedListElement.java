@@ -10,26 +10,26 @@ import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.SquareData;
 import me.melontini.flightpanel.impl.widgets.IconDrawer;
-import net.minecraft.client.gui.AbstractParentElement;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
 public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedListElement<T>> {
 
-  private static final Identifier ICONS =
-      Identifier.of("flight-panel", "textures/gui/gui_icons.png");
+  private static final ResourceLocation ICONS =
+      ResourceLocation.tryBuild("flight-panel", "textures/gui/gui_icons.png");
 
   private final List<NestedCell> children = new ArrayList<>();
-  private final ButtonWidget newElementButton;
+  private final Button newElementButton;
   private final boolean immutable;
   private final BiFunction<T, NestedListElement<T>, AbstractValuedElement<T, ?>> cellFactory;
   private final Supplier<T> defaultElementValue;
@@ -46,12 +46,12 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
     this.collapsed = builder.dataOrElse(CollapsibleObjectBuilder.COLLAPSED, true);
 
     this.newElementButton =
-        new ButtonWidget(
+        new Button(
             0,
             0,
             20,
             20,
-            Text.literal("+"),
+            Component.literal("+"),
             button -> {
               var list = new ArrayList<>(NestedListElement.this.value());
               var cell = new NestedCell(
@@ -65,10 +65,10 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
             },
             Supplier::get) {
           @Override
-          protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
-            this.hovered = this.hovered
+          protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+            this.isHovered = this.isHovered
                 && NestedListElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
-            super.renderButton(context, mouseX, mouseY, delta);
+            super.renderWidget(context, mouseX, mouseY, delta);
           }
         };
     this.newElementButton.visible = !immutable;
@@ -126,15 +126,15 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     super.render(context, mouseX, mouseY, delta);
     this.visibleChildren.forEach(child -> child.render(context, mouseX, mouseY, delta));
 
     var dn = displayName(mouseX, mouseY);
     int color =
-        Optional.ofNullable(dn.getStyle().getColor()).map(TextColor::getRgb).orElse(-1);
+        Optional.ofNullable(dn.getStyle().getColor()).map(TextColor::getValue).orElse(-1);
     this.iconDrawer.color(color).renderIcon(context, true);
-    context.drawTextWithShadow(client.textRenderer, dn, pos.x() + 12 + 4, pos.y() + 7, -1);
+    context.drawString(client.font, dn, pos.x() + 12 + 4, pos.y() + 7, -1);
     this.newElementButton.render(context, mouseX, mouseY, delta);
   }
 
@@ -153,9 +153,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
   public boolean onWidgetClicked(double mouseX, double mouseY, int button) {
     if (button != 0) return false;
     collapsed = !collapsed;
-    client
-        .getSoundManager()
-        .play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     this.proxy().rebuildPositions();
     return true;
   }
@@ -179,15 +177,15 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
   }
 
   @Override
-  public @Nullable Text getElementError() {
-    List<Text> texts = this.children.stream()
+  public @Nullable Component getElementError() {
+    List<Component> texts = this.children.stream()
         .map(NestedCell::element)
         .map(AbstractConfigElement::getElementError)
         .filter(Objects::nonNull)
         .toList();
 
     if (texts.size() == 1) return texts.get(0);
-    if (texts.size() > 1) return Text.translatable("service.flight-panel.error.list.multiple");
+    if (texts.size() > 1) return Component.translatable("service.flight-panel.error.list.multiple");
     return null;
   }
 
@@ -216,17 +214,17 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
   }
 
   @Override
-  public List<? extends Element> children() {
+  public List<? extends GuiEventListener> children() {
     var buttons = List.of(this.resetButton, this.newElementButton);
     return collapsed
         ? buttons
         : Stream.concat(buttons.stream(), elements().stream()).toList();
   }
 
-  public final class NestedCell extends AbstractParentElement implements Drawable {
+  public final class NestedCell extends AbstractContainerEventHandler implements Renderable {
 
     private final AbstractValuedElement<T, ?> element;
-    private final ButtonWidget removeWidget;
+    private final Button removeWidget;
     private int index;
 
     private NestedCell(AbstractValuedElement<T, ?> element, int index) {
@@ -240,12 +238,12 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
       });
 
       this.removeWidget =
-          new ButtonWidget(
+          new Button(
               0,
               0,
               12,
               12,
-              Text.literal("-").formatted(Formatting.RED),
+              Component.literal("-").withStyle(ChatFormatting.RED),
               button -> {
                 var list = new ArrayList<>(NestedListElement.this.value());
 
@@ -262,10 +260,10 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
               },
               Supplier::get) {
             @Override
-            protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
-              this.hovered = this.hovered
+            protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+              this.isHovered = this.isHovered
                   && NestedListElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
-              super.renderButton(context, mouseX, mouseY, delta);
+              super.renderWidget(context, mouseX, mouseY, delta);
             }
           };
       this.removeWidget.visible = !NestedListElement.this.immutable;
@@ -280,7 +278,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
       this.element.render(context, mouseX, mouseY, delta);
 
       this.removeWidget.setX(this.element.pos().x() - 16);
@@ -298,7 +296,7 @@ public class NestedListElement<T> extends AbstractValuedElement<List<T>, NestedL
     }
 
     @Override
-    public List<? extends Element> children() {
+    public List<? extends GuiEventListener> children() {
       return List.of(removeWidget, element);
     }
   }

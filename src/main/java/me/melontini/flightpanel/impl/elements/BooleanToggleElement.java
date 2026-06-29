@@ -5,41 +5,41 @@ import java.util.function.Supplier;
 import me.melontini.flightpanel.api.builders.elements.BooleanToggleBuilder;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.SquareData;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.network.chat.Component;
 
 public class BooleanToggleElement extends AbstractValuedElement<Boolean, BooleanToggleElement> {
 
-  private final ButtonWidget widget;
+  private final Button widget;
 
   public BooleanToggleElement(BooleanToggleBuilder builder) {
     super(builder);
     this.widget =
-        new ButtonWidget(
+        new Button(
             0,
             0,
             20,
             20,
             value()
-                ? Text.literal("✔").formatted(Formatting.GREEN)
-                : Text.literal("❌").formatted(Formatting.RED),
+                ? Component.literal("✔").withStyle(ChatFormatting.GREEN)
+                : Component.literal("❌").withStyle(ChatFormatting.RED),
             button -> value(!value()),
             Supplier::get) {
           @Override
-          protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
-            this.hovered = this.hovered
+          protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+            this.isHovered = this.isHovered
                 && BooleanToggleElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
-            super.renderButton(context, mouseX, mouseY, delta);
+            super.renderWidget(context, mouseX, mouseY, delta);
           }
         };
 
     this.listenToChange((b, nb) -> this.widget.setMessage(
         nb
-            ? Text.literal("✔").formatted(Formatting.GREEN)
-            : Text.literal("❌").formatted(Formatting.RED)));
+            ? Component.literal("✔").withStyle(ChatFormatting.GREEN)
+            : Component.literal("❌").withStyle(ChatFormatting.RED)));
   }
 
   @Override
@@ -56,11 +56,10 @@ public class BooleanToggleElement extends AbstractValuedElement<Boolean, Boolean
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     super.render(context, mouseX, mouseY, delta);
 
-    context.drawTextWithShadow(
-        client.textRenderer, displayName(mouseX, mouseY), pos.x(), pos.y() + 7, -1);
+    context.drawString(client.font, displayName(mouseX, mouseY), pos.x(), pos.y() + 7, -1);
     this.widget.render(context, mouseX, mouseY, delta);
   }
 
@@ -70,7 +69,7 @@ public class BooleanToggleElement extends AbstractValuedElement<Boolean, Boolean
   }
 
   @Override
-  public List<? extends Element> children() {
+  public List<? extends GuiEventListener> children() {
     return List.of(widget, resetButton);
   }
 }

@@ -18,7 +18,7 @@ import me.melontini.flightpanel.api.generators.context.HierarchyAccessor;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
 import me.melontini.flightpanel.api.generators.context.TypeContext;
 import me.melontini.flightpanel.impl.elements.CollapsibleObjectElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.ClassUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -130,7 +130,7 @@ public class CollapsibleObjectProviderFactory implements GuiProviderFactory {
       String classKey = String.format("%s.%s", remainingKey, raw.getSimpleName());
 
       var b = CollapsibleObjectBuilder.create(
-              Text.translatable(!context.generic() ? context.i18n() : classKey), value)
+              Component.translatable(!context.generic() ? context.i18n() : classKey), value)
           .collapsed(collapsed());
       var entryCtx = context.withGeneric(false);
       boolean genericFields = context.generic() || keyType().isGenericFields();

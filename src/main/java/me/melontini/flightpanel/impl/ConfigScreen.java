@@ -2,6 +2,7 @@ package me.melontini.flightpanel.impl;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import dev.zenfyr.pulsar.api.util.ColorUtil;
 import dev.zenfyr.pulsar.api.util.MakeSure;
 import java.util.*;
@@ -14,57 +15,58 @@ import me.melontini.flightpanel.impl.widgets.ConfigElementListWidget;
 import me.melontini.flightpanel.impl.widgets.OptionInfoWidget;
 import me.melontini.flightpanel.impl.widgets.tab.TabManager;
 import me.melontini.flightpanel.impl.widgets.tab.TabNavigationWidget;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ConfirmScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.world.CreateWorldScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 
 public class ConfigScreen extends Screen implements ConfigScreenProxy {
 
-  private static final Text SAVE_LABEL = Text.translatable("service.flight-panel.widget.save");
-  private static final Text SAVE_ERROR_TITLE =
-      Text.translatable("service.flight-panel.widget.save.error.title");
-  private static final Text SAVE_ERROR_DESC = Text.translatable(
+  private static final Component SAVE_LABEL =
+      Component.translatable("service.flight-panel.widget.save");
+  private static final Component SAVE_ERROR_TITLE =
+      Component.translatable("service.flight-panel.widget.save.error.title");
+  private static final Component SAVE_ERROR_DESC = Component.translatable(
           "service.flight-panel.widget.save.error.description")
-      .formatted(Formatting.GRAY);
+      .withStyle(ChatFormatting.GRAY);
 
-  private static final Text BACK_LABEL = Text.translatable("service.flight-panel.widget.back");
+  private static final Component BACK_LABEL =
+      Component.translatable("service.flight-panel.widget.back");
 
-  private static final Text CHANGES_TITLE =
-      Text.translatable("service.flight-panel.screen.unsaved_changes.title");
-  private static final Text CHANGES_MSG =
-      Text.translatable("service.flight-panel.screen.unsaved_changes.message");
-  private static final Text CHANGES_YES =
-      Text.translatable("service.flight-panel.screen.unsaved_changes.yes");
-  private static final Text CHANGES_NO =
-      Text.translatable("service.flight-panel.screen.unsaved_changes.no");
+  private static final Component CHANGES_TITLE =
+      Component.translatable("service.flight-panel.screen.unsaved_changes.title");
+  private static final Component CHANGES_MSG =
+      Component.translatable("service.flight-panel.screen.unsaved_changes.message");
+  private static final Component CHANGES_YES =
+      Component.translatable("service.flight-panel.screen.unsaved_changes.yes");
+  private static final Component CHANGES_NO =
+      Component.translatable("service.flight-panel.screen.unsaved_changes.no");
 
-  private static final Text RESTART_TITLE =
-      Text.translatable("service.flight-panel.screen.restart_required.title");
-  private static final Text RESTART_MSG =
-      Text.translatable("service.flight-panel.screen.restart_required.message");
-  private static final Text RESTART_YES =
-      Text.translatable("service.flight-panel.screen.restart_required.yes");
-  private static final Text RESTART_NO =
-      Text.translatable("service.flight-panel.screen.restart_required.no");
+  private static final Component RESTART_TITLE =
+      Component.translatable("service.flight-panel.screen.restart_required.title");
+  private static final Component RESTART_MSG =
+      Component.translatable("service.flight-panel.screen.restart_required.message");
+  private static final Component RESTART_YES =
+      Component.translatable("service.flight-panel.screen.restart_required.yes");
+  private static final Component RESTART_NO =
+      Component.translatable("service.flight-panel.screen.restart_required.no");
 
   private final Screen parent;
   private final Runnable saveFunction;
 
-  private final Map<Text, ConfigElementListWidget> categories;
+  private final Map<Component, ConfigElementListWidget> categories;
   private final Collection<AbstractConfigElement<?, ?>> allChildren;
 
   private final TabManager tabManager;
   private TabNavigationWidget navigationWidget;
-  private ButtonWidget backWidget;
-  private ButtonWidget saveWidget;
+  private Button backWidget;
+  private Button saveWidget;
   private OptionInfoWidget optionInfoWidget;
 
   private ConfigElementListWidget currentCategory;
@@ -73,7 +75,10 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
   boolean requiresRestart = false;
 
   public ConfigScreen(
-      Text title, Screen parent, Map<Text, CategoryBuilder> children, Runnable saveFunction) {
+      Component title,
+      Screen parent,
+      Map<Component, CategoryBuilder> children,
+      Runnable saveFunction) {
     super(title);
     this.parent = parent;
     this.saveFunction = saveFunction;
@@ -92,20 +97,20 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
             () -> new RuntimeException("Config screens must contain at least 1 category!"));
 
     this.tabManager = new TabManager(text -> {
-      this.remove(this.currentCategory);
+      this.removeWidget(this.currentCategory);
       this.currentCategory = this.categories.get(text);
-      this.addDrawableChild(this.currentCategory);
+      this.addRenderableWidget(this.currentCategory);
       this.currentCategory.rebuildPositions();
     });
   }
 
   @Override
   public void init() {
-    int wHeight = client.getWindow().getScaledHeight();
-    int wWidth = client.getWindow().getScaledWidth();
+    int wHeight = minecraft.getWindow().getGuiScaledHeight();
+    int wWidth = minecraft.getWindow().getGuiScaledWidth();
 
     this.navigationWidget = TabNavigationWidget.builder(this.tabManager, getViewBoxWidth())
-        .tabs(this.categories.keySet().toArray(Text[]::new))
+        .tabs(this.categories.keySet().toArray(Component[]::new))
         .build();
 
     for (ConfigElementListWidget value : this.categories.values()) {
@@ -114,14 +119,14 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
       value.rebuildPositions();
     }
 
-    int backLabelWidth = client.textRenderer.getWidth(BACK_LABEL);
-    this.backWidget = ButtonWidget.builder(BACK_LABEL, button -> this.close())
-        .position(3, getViewBoxBottom() + 3)
+    int backLabelWidth = minecraft.font.width(BACK_LABEL);
+    this.backWidget = Button.builder(BACK_LABEL, button -> this.onClose())
+        .pos(3, getViewBoxBottom() + 3)
         .size(backLabelWidth + 16, 20)
         .build();
 
-    int saveLabelWidth = client.textRenderer.getWidth(SAVE_LABEL);
-    this.saveWidget = ButtonWidget.builder(SAVE_LABEL, button -> {
+    int saveLabelWidth = minecraft.font.width(SAVE_LABEL);
+    this.saveWidget = Button.builder(SAVE_LABEL, button -> {
           if (!this.requiresRestart)
             this.requiresRestart =
                 this.allChildren.stream().anyMatch(e -> e.requiresRestart() && e.modified());
@@ -129,7 +134,7 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
           this.allChildren.forEach(AbstractConfigElement::save);
           this.saveFunction.run();
         })
-        .position(3 + backLabelWidth + 16 + 3, getViewBoxBottom() + 3)
+        .pos(3 + backLabelWidth + 16 + 3, getViewBoxBottom() + 3)
         .size(saveLabelWidth + 16, 20)
         .build();
     this.saveWidget.active = false;
@@ -142,11 +147,11 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     if (this.optionInfoWidget != null) optionInfo.display(this.optionInfoWidget.display());
     this.optionInfoWidget = optionInfo;
 
-    this.addDrawableChild(this.navigationWidget);
-    this.addDrawableChild(this.currentCategory);
-    this.addDrawableChild(this.backWidget);
-    this.addDrawableChild(this.saveWidget);
-    this.addDrawableChild(this.optionInfoWidget);
+    this.addRenderableWidget(this.navigationWidget);
+    this.addRenderableWidget(this.currentCategory);
+    this.addRenderableWidget(this.backWidget);
+    this.addRenderableWidget(this.saveWidget);
+    this.addRenderableWidget(this.optionInfoWidget);
 
     this.navigationWidget.selectTab(0, false);
     this.navigationWidget.init();
@@ -155,22 +160,23 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
 
   private void updateWidgets() {
     this.saveWidget.active = this.edited && !this.erroring;
-    this.saveWidget.setMessage(erroring ? SAVE_LABEL.copy().formatted(Formatting.RED) : SAVE_LABEL);
+    this.saveWidget.setMessage(
+        erroring ? SAVE_LABEL.copy().withStyle(ChatFormatting.RED) : SAVE_LABEL);
   }
 
   private final Deque<Runnable> renderTasks = new ArrayDeque<>();
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    this.renderBackgroundTexture(context);
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    this.renderBackground(context);
 
     context.fill(0, 0, this.width, getHeaderSize(), ColorUtil.toColor(0, 0, 0, 130));
     context.fill(0, getViewBoxBottom(), this.width, this.height, ColorUtil.toColor(0, 0, 0, 130));
 
-    context.drawTexture(
-        CreateWorldScreen.FOOTER_SEPARATOR_TEXTURE,
+    context.blit(
+        CreateWorldScreen.FOOTER_SEPERATOR,
         0,
-        MathHelper.roundUpToMultiple(this.height - getFooterSize() - 2, 2),
+        Mth.roundToward(this.height - getFooterSize() - 2, 2),
         0.0F,
         0.0F,
         this.width,
@@ -178,12 +184,10 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
         32,
         2);
     super.render(context, mouseX, mouseY, delta);
-    context.drawTexture(
-        CreateWorldScreen.HEADER_SEPARATOR_TEXTURE, 0, 24 - 2, 0.0F, 0.0F, this.width, 2, 32, 2);
+    context.blit(CreateWorldScreen.HEADER_SEPERATOR, 0, 24 - 2, 0.0F, 0.0F, this.width, 2, 32, 2);
 
     if (this.categories.size() <= 1)
-      context.drawCenteredTextWithShadow(
-          this.textRenderer, this.title, this.width / 2, 12 - 4, 16777215);
+      context.drawCenteredString(this.font, this.title, this.width / 2, 12 - 4, 16777215);
 
     if (this.erroring
         && saveWidget.visible
@@ -191,8 +195,8 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
         && mouseX <= saveWidget.getX() + saveWidget.getWidth()
         && mouseY >= saveWidget.getY()
         && mouseY <= saveWidget.getY() + saveWidget.getHeight()) {
-      context.drawTooltip(
-          client.textRenderer, List.of(SAVE_ERROR_TITLE, SAVE_ERROR_DESC), mouseX, mouseY);
+      context.renderComponentTooltip(
+          minecraft.font, List.of(SAVE_ERROR_TITLE, SAVE_ERROR_DESC), mouseX, mouseY);
     }
 
     synchronized (this.renderTasks) {
@@ -204,7 +208,7 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
   }
 
   public int getViewBoxWidth() {
-    return (int) (client.getWindow().getScaledWidth() / 1.45);
+    return (int) (minecraft.getWindow().getGuiScaledWidth() / 1.45);
   }
 
   public int getViewBoxTop() {
@@ -212,7 +216,7 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
   }
 
   public int getViewBoxBottom() {
-    return client.getWindow().getScaledHeight() - getFooterSize();
+    return minecraft.getWindow().getGuiScaledHeight() - getFooterSize();
   }
 
   public int getHeaderSize() {
@@ -235,16 +239,16 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
   }
 
   @Override
-  public void close() {
-    MakeSure.notNull(client);
+  public void onClose() {
+    MakeSure.notNull(minecraft);
 
     if (this.allChildren.stream().anyMatch(AbstractConfigElement::modified)) {
-      this.client.setScreen(new ConfirmScreen(
+      this.minecraft.setScreen(new ConfirmScreen(
           response -> {
             if (response) {
               this.saveWidget.onPress();
-              this.close(); // We have to check requiresRestart
-            } else this.client.setScreen(this.parent);
+              this.onClose(); // We have to check requiresRestart
+            } else this.minecraft.setScreen(this.parent);
           },
           CHANGES_TITLE,
           CHANGES_MSG,
@@ -254,10 +258,10 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     }
 
     if (this.requiresRestart) {
-      this.client.setScreen(new ConfirmScreen(
+      this.minecraft.setScreen(new ConfirmScreen(
           response -> {
-            if (response) this.client.scheduleStop();
-            else this.client.setScreen(this.parent);
+            if (response) this.minecraft.stop();
+            else this.minecraft.setScreen(this.parent);
           },
           RESTART_TITLE,
           RESTART_MSG,
@@ -265,11 +269,11 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
           RESTART_NO));
       return;
     }
-    this.client.setScreen(this.parent);
+    this.minecraft.setScreen(this.parent);
   }
 
   public static void fillGradientHorizontal(
-      MatrixStack matrices,
+      PoseStack matrices,
       int startX,
       int startY,
       int endX,
@@ -278,12 +282,12 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
       int colorEnd) {
     RenderSystem.enableBlend();
     RenderSystem.defaultBlendFunc();
-    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder bufferBuilder = tessellator.getBuffer();
-    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+    RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    Tesselator tesselator = Tesselator.getInstance();
+    BufferBuilder bufferBuilder = tesselator.getBuilder();
+    bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
     fillGradientHorizontal(
-        matrices.peek().getPositionMatrix(),
+        matrices.last().pose(),
         bufferBuilder,
         startX,
         startY,
@@ -292,7 +296,7 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
         0,
         colorStart,
         colorEnd);
-    tessellator.draw();
+    tesselator.end();
     RenderSystem.disableBlend();
   }
 
@@ -315,10 +319,10 @@ public class ConfigScreen extends Screen implements ConfigScreenProxy {
     float l = ColorUtil.getGreenF(colorEnd);
     float m = ColorUtil.getBlueF(colorEnd);
 
-    builder.vertex(matrix, endX, startY, z).color(k, l, m, j).next();
-    builder.vertex(matrix, startX, startY, z).color(g, h, i, f).next();
-    builder.vertex(matrix, startX, endY, z).color(g, h, i, f).next();
-    builder.vertex(matrix, endX, endY, z).color(k, l, m, j).next();
+    builder.vertex(matrix, endX, startY, z).color(k, l, m, j).endVertex();
+    builder.vertex(matrix, startX, startY, z).color(g, h, i, f).endVertex();
+    builder.vertex(matrix, startX, endY, z).color(g, h, i, f).endVertex();
+    builder.vertex(matrix, endX, endY, z).color(k, l, m, j).endVertex();
   }
 
   @Override

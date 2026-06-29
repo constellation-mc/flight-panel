@@ -5,7 +5,7 @@ import dev.zenfyr.pulsar.api.util.Result;
 import dev.zenfyr.pulsar.api.util.tuple.Tuple;
 import me.melontini.flightpanel.api.builders.elements.numbers.LongTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberTextBoxElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class LongTextBoxElement extends AbstractNumberTextBoxElement<Long, LongTextBoxElement> {
 
@@ -29,10 +29,10 @@ public class LongTextBoxElement extends AbstractNumberTextBoxElement<Long, LongT
   }
 
   @Override
-  protected Result<Long, Text> convertToNumber(String s) {
+  protected Result<Long, Component> convertToNumber(String s) {
     var num = Longs.tryParse(s);
     return num == null
-        ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_long"))
+        ? Result.error(Component.translatable("service.flight-panel.error.number.invalid_long"))
         : Result.ok(num);
   }
 }

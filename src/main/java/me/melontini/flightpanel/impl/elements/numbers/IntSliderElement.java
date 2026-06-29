@@ -2,7 +2,7 @@ package me.melontini.flightpanel.impl.elements.numbers;
 
 import me.melontini.flightpanel.api.builders.elements.numbers.IntSliderBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberSliderElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class IntSliderElement extends AbstractNumberSliderElement<Integer, IntSliderElement> {
 
@@ -12,8 +12,8 @@ public class IntSliderElement extends AbstractNumberSliderElement<Integer, IntSl
   }
 
   @Override
-  protected Text getMessage(Integer value) {
-    return Text.literal(Integer.toString(value));
+  protected Component getMessage(Integer value) {
+    return Component.literal(Integer.toString(value));
   }
 
   @Override

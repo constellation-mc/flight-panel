@@ -5,23 +5,23 @@ import java.util.function.Function;
 import me.melontini.flightpanel.api.builders.elements.collections.ListButtonBuilder;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.SquareData;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.network.chat.Component;
 
 public class ListButtonElement<T> extends AbstractValuedElement<T, ListButtonElement<T>> {
 
   private final List<T> values;
-  private final Function<T, Text> textifier;
-  private final ButtonWidget widget;
+  private final Function<T, Component> textifier;
+  private final Button widget;
 
   public ListButtonElement(ListButtonBuilder<T> builder) {
     super(builder);
     this.values = builder.dataOrThrow(builder.valuesType());
     this.textifier = builder.dataOrThrow(builder.textifierType());
 
-    this.widget = ButtonWidget.builder(this.textifier.apply(this.value()), button -> {
+    this.widget = Button.builder(this.textifier.apply(this.value()), button -> {
           int index = this.values.indexOf(value());
           index = index >= this.values.size() - 1 ? 0 : index + 1;
           this.value(this.values.get(index));
@@ -42,11 +42,10 @@ public class ListButtonElement<T> extends AbstractValuedElement<T, ListButtonEle
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     super.render(context, mouseX, mouseY, delta);
 
-    context.drawTextWithShadow(
-        client.textRenderer, displayName(mouseX, mouseY), pos.x(), pos.y() + 7, -1);
+    context.drawString(client.font, displayName(mouseX, mouseY), pos.x(), pos.y() + 7, -1);
     this.widget.render(context, mouseX, mouseY, delta);
   }
 
@@ -56,7 +55,7 @@ public class ListButtonElement<T> extends AbstractValuedElement<T, ListButtonEle
   }
 
   @Override
-  public List<? extends Element> children() {
+  public List<? extends GuiEventListener> children() {
     return List.of(widget, resetButton);
   }
 }

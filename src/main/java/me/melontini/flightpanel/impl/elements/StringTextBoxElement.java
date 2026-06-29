@@ -4,7 +4,7 @@ import dev.zenfyr.pulsar.api.util.Result;
 import java.util.function.Function;
 import me.melontini.flightpanel.api.builders.elements.StringTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractTextBoxElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class StringTextBoxElement extends AbstractTextBoxElement<String, StringTextBoxElement> {
 
@@ -21,7 +21,7 @@ public class StringTextBoxElement extends AbstractTextBoxElement<String, StringT
   }
 
   @Override
-  protected Result<String, Text> convertFromString(String s) {
+  protected Result<String, Component> convertFromString(String s) {
     return Result.ok(s);
   }
 

@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 
 @Accessors(fluent = true)
 @Getter
@@ -14,27 +14,27 @@ import net.minecraft.util.Identifier;
 @Builder
 public class IconDrawer {
 
-  private final Identifier texture;
+  private final ResourceLocation texture;
   private int x, y;
   private int width, height;
   private int textureWidth, textureHeight;
   private int u, v;
   private int color;
 
-  public void renderIcon(DrawContext context, boolean shadow) {
+  public void renderIcon(GuiGraphics context, boolean shadow) {
     if (shadow) {
-      context.setShaderColor(
+      context.setColor(
           ColorUtil.getRedF(color) * 0.25F,
           ColorUtil.getGreenF(color) * 0.25F,
           ColorUtil.getBlueF(color) * 0.25F,
           1);
-      context.drawTexture(
+      context.blit(
           texture, x + 1, y + 1, 0, u, v, width, height, textureWidth, textureHeight);
     }
-    context.setShaderColor(
+    context.setColor(
         ColorUtil.getRedF(color), ColorUtil.getGreenF(color), ColorUtil.getBlueF(color), 1);
-    context.drawTexture(texture, x, y, 0, u, v, width, height, textureWidth, textureHeight);
-    context.setShaderColor(1, 1, 1, 1);
+    context.blit(texture, x, y, 0, u, v, width, height, textureWidth, textureHeight);
+    context.setColor(1, 1, 1, 1);
   }
 
   public static class IconDrawerBuilder {

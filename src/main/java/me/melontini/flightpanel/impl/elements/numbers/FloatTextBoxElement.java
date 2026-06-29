@@ -5,7 +5,7 @@ import dev.zenfyr.pulsar.api.util.Result;
 import dev.zenfyr.pulsar.api.util.tuple.Tuple;
 import me.melontini.flightpanel.api.builders.elements.numbers.FloatTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberTextBoxElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class FloatTextBoxElement extends AbstractNumberTextBoxElement<Float, FloatTextBoxElement> {
 
@@ -29,10 +29,10 @@ public class FloatTextBoxElement extends AbstractNumberTextBoxElement<Float, Flo
   }
 
   @Override
-  protected Result<Float, Text> convertToNumber(String s) {
+  protected Result<Float, Component> convertToNumber(String s) {
     var num = Floats.tryParse(s);
     return num == null
-        ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_float"))
+        ? Result.error(Component.translatable("service.flight-panel.error.number.invalid_float"))
         : Result.ok(num);
   }
 }

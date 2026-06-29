@@ -3,7 +3,7 @@ package me.melontini.flightpanel.api.builders.elements.numbers;
 import java.math.RoundingMode;
 import me.melontini.flightpanel.api.util.DataType;
 import me.melontini.flightpanel.impl.elements.numbers.DoubleSliderElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class DoubleSliderBuilder
     extends RangedNumberElementBuilder<Double, DoubleSliderElement, DoubleSliderBuilder> {
@@ -11,11 +11,12 @@ public class DoubleSliderBuilder
   public static final DataType<Integer> PLACES = DataType.of();
   public static final DataType<RoundingMode> ROUNDING_MODE = DataType.of();
 
-  public static DoubleSliderBuilder create(Text elementName, double value, double min, double max) {
+  public static DoubleSliderBuilder create(
+      Component elementName, double value, double min, double max) {
     return new DoubleSliderBuilder(elementName, value, min, max);
   }
 
-  protected DoubleSliderBuilder(Text elementName, double value, double min, double max) {
+  protected DoubleSliderBuilder(Component elementName, double value, double min, double max) {
     super(elementName, value);
     this.min(min);
     this.max(max);

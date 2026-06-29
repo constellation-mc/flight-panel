@@ -3,40 +3,41 @@ package me.melontini.flightpanel.impl.widgets.tab;
 import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 @Environment(EnvType.CLIENT)
-public class TabButtonWidget extends ClickableWidget {
+public class TabButtonWidget extends AbstractWidget {
 
-  private static final Identifier TEXTURE = new Identifier("textures/gui/tab_button.png");
+  private static final ResourceLocation TEXTURE =
+      ResourceLocation.tryParse("textures/gui/tab_button.png");
   private final TabManager tabManager;
 
   @Getter
-  private final Text tab;
+  private final Component tab;
 
-  private final MousePosChecker isHovered;
+  private final MousePosChecker posChecker;
 
   public TabButtonWidget(
-      TabManager tabManager, Text tab, MousePosChecker isHovered, int width, int height) {
+      TabManager tabManager, Component tab, MousePosChecker isHovered, int width, int height) {
     super(0, 0, width, height, tab);
     this.tabManager = tabManager;
     this.tab = tab;
-    this.isHovered = isHovered;
+    this.posChecker = isHovered;
   }
 
   @Override
-  public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
-    this.hovered = this.isHovered.isTabAreaHovered(mouseX, mouseY) && this.hovered;
+  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    this.isHovered = this.posChecker.isTabAreaHovered(mouseX, mouseY) && this.isHovered;
 
-    context.drawNineSlicedTexture(
+    context.blitNineSliced(
         TEXTURE,
         this.getX(),
         this.getY(),
@@ -50,7 +51,7 @@ public class TabButtonWidget extends ClickableWidget {
         24,
         0,
         this.getTextureV());
-    TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+    Font textRenderer = Minecraft.getInstance().font;
     int i = this.active ? -1 : -6250336;
     this.drawMessage(context, textRenderer, i);
     if (this.isCurrentTab()) {
@@ -58,16 +59,16 @@ public class TabButtonWidget extends ClickableWidget {
     }
   }
 
-  public void drawMessage(DrawContext context, TextRenderer textRenderer, int color) {
+  public void drawMessage(GuiGraphics context, Font textRenderer, int color) {
     int i = this.getX() + 1;
     int j = this.getY() + (this.isCurrentTab() ? 0 : 3);
     int k = this.getX() + this.getWidth() - 1;
     int l = this.getY() + this.getHeight();
-    drawScrollableText(context, textRenderer, this.getMessage(), i, j, k, l, color);
+    renderScrollingString(context, textRenderer, this.getMessage(), i, j, k, l, color);
   }
 
-  private void drawCurrentTabLine(DrawContext context, TextRenderer textRenderer, int color) {
-    int i = Math.min(textRenderer.getWidth(this.getMessage()), this.getWidth() - 4);
+  private void drawCurrentTabLine(GuiGraphics context, Font textRenderer, int color) {
+    int i = Math.min(textRenderer.width(this.getMessage()), this.getWidth() - 4);
     int j = this.getX() + (this.getWidth() - i) / 2;
     int k = this.getY() + this.getHeight() - 2;
     context.fill(j, k, j + i, k + 1, color);
@@ -75,11 +76,11 @@ public class TabButtonWidget extends ClickableWidget {
 
   protected int getTextureV() {
     int i = 2;
-    if (this.isCurrentTab() && this.isSelected()) {
+    if (this.isCurrentTab() && this.isHoveredOrFocused()) {
       i = 1;
     } else if (this.isCurrentTab()) {
       i = 0;
-    } else if (this.isSelected()) {
+    } else if (this.isHoveredOrFocused()) {
       i = 3;
     }
 
@@ -87,8 +88,8 @@ public class TabButtonWidget extends ClickableWidget {
   }
 
   @Override
-  protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-    builder.put(NarrationPart.TITLE, Text.translatable("gui.narrate.tab", this.tab));
+  protected void updateWidgetNarration(NarrationElementOutput output) {
+    output.add(NarratedElementType.TITLE, Component.translatable("gui.narrate.tab", this.tab));
   }
 
   @Override

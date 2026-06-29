@@ -3,18 +3,18 @@ package me.melontini.flightpanel.api.builders.elements;
 import java.util.function.Function;
 import me.melontini.flightpanel.api.util.DataType;
 import me.melontini.flightpanel.impl.elements.StringTextBoxElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class StringTextBoxBuilder
     extends ValuedElementBuilder<String, StringTextBoxElement, StringTextBoxBuilder> {
 
   public static final DataType<Function<String, String>> SANITIZER = DataType.of();
 
-  public static StringTextBoxBuilder create(Text elementName, String value) {
+  public static StringTextBoxBuilder create(Component elementName, String value) {
     return new StringTextBoxBuilder(elementName, value);
   }
 
-  protected StringTextBoxBuilder(Text elementName, String value) {
+  protected StringTextBoxBuilder(Component elementName, String value) {
     super(elementName, value);
   }
 

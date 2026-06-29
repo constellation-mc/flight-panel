@@ -2,7 +2,7 @@ package me.melontini.flightpanel.api.generators.context;
 
 import lombok.*;
 import lombok.experimental.Accessors;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 @Builder
 @With
@@ -13,7 +13,7 @@ public class ProviderContext {
   String i18n;
   boolean generic;
 
-  public Text i18nOrEmpty() {
-    return (i18n.isBlank() || generic) ? Text.empty() : Text.translatable(i18n);
+  public Component i18nOrEmpty() {
+    return (i18n.isBlank() || generic) ? Component.empty() : Component.translatable(i18n);
   }
 }

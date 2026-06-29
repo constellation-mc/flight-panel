@@ -5,7 +5,7 @@ import dev.zenfyr.pulsar.api.util.Result;
 import dev.zenfyr.pulsar.api.util.tuple.Tuple;
 import me.melontini.flightpanel.api.builders.elements.numbers.IntTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberTextBoxElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class IntTextBoxElement extends AbstractNumberTextBoxElement<Integer, IntTextBoxElement> {
 
@@ -29,10 +29,10 @@ public class IntTextBoxElement extends AbstractNumberTextBoxElement<Integer, Int
   }
 
   @Override
-  protected Result<Integer, Text> convertToNumber(String s) {
+  protected Result<Integer, Component> convertToNumber(String s) {
     var num = Ints.tryParse(s);
     return num == null
-        ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_int"))
+        ? Result.error(Component.translatable("service.flight-panel.error.number.invalid_int"))
         : Result.ok(num);
   }
 }

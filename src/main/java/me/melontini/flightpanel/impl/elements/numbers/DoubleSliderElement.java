@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import me.melontini.flightpanel.api.builders.elements.numbers.DoubleSliderBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberSliderElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class DoubleSliderElement extends AbstractNumberSliderElement<Double, DoubleSliderElement> {
 
@@ -19,8 +19,8 @@ public class DoubleSliderElement extends AbstractNumberSliderElement<Double, Dou
   }
 
   @Override
-  protected Text getMessage(Double value) {
-    return Text.literal(Double.toString(value));
+  protected Component getMessage(Double value) {
+    return Component.literal(Double.toString(value));
   }
 
   @Override

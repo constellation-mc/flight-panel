@@ -5,7 +5,7 @@ import dev.zenfyr.pulsar.api.util.Result;
 import dev.zenfyr.pulsar.api.util.tuple.Tuple;
 import me.melontini.flightpanel.api.builders.elements.numbers.DoubleTextBoxBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberTextBoxElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class DoubleTextBoxElement
     extends AbstractNumberTextBoxElement<Double, DoubleTextBoxElement> {
@@ -30,10 +30,10 @@ public class DoubleTextBoxElement
   }
 
   @Override
-  protected Result<Double, Text> convertToNumber(String s) {
+  protected Result<Double, Component> convertToNumber(String s) {
     var num = Doubles.tryParse(s);
     return num == null
-        ? Result.error(Text.translatable("service.flight-panel.error.number.invalid_double"))
+        ? Result.error(Component.translatable("service.flight-panel.error.number.invalid_double"))
         : Result.ok(num);
   }
 }

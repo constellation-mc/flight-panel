@@ -3,7 +3,7 @@ package me.melontini.flightpanel.api.builders.elements;
 import java.util.*;
 import me.melontini.flightpanel.api.util.DataType;
 import me.melontini.flightpanel.impl.elements.CollapsibleObjectElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,15 +14,15 @@ public class CollapsibleObjectBuilder<T>
   public static final DataType<List<BaseElementBuilder<?, ?, ?>>> ELEMENTS = DataType.of();
   public static final DataType<Boolean> COLLAPSED = DataType.of();
 
-  public static CollapsibleObjectBuilder<?> create(Text elementName) {
+  public static CollapsibleObjectBuilder<?> create(Component elementName) {
     return create(elementName, Optional.empty());
   }
 
-  public static <T> CollapsibleObjectBuilder<T> create(Text elementName, T value) {
+  public static <T> CollapsibleObjectBuilder<T> create(Component elementName, T value) {
     return new CollapsibleObjectBuilder<>(elementName, value);
   }
 
-  protected CollapsibleObjectBuilder(Text elementName, T value) {
+  protected CollapsibleObjectBuilder(Component elementName, T value) {
     super(elementName, value);
     this.data(ELEMENTS, Lists.newArrayList());
   }

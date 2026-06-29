@@ -12,9 +12,9 @@ import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
 import me.melontini.flightpanel.api.generators.GuiRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.OptionsScreen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public class TestInit implements ClientModInitializer {
 
@@ -27,7 +27,7 @@ public class TestInit implements ClientModInitializer {
           && Screen.hasShiftDown()
           && Screen.hasAltDown()) {
         var sb = ConfigScreenBuilder.create()
-            .title(Text.literal("NEVER GONNA GIVE YOU UP"))
+            .title(Component.literal("NEVER GONNA GIVE YOU UP"))
             .saveFunction(() -> System.out.println(CONFIG));
 
         List<List<BaseElementBuilder<?, ?, ?>>> partition = Lists.partition(
@@ -36,7 +36,7 @@ public class TestInit implements ClientModInitializer {
             1);
         for (int i = 0; i < partition.size(); i++) {
           List<BaseElementBuilder<?, ?, ?>> builders = partition.get(i);
-          sb.category(Text.literal("default " + MathUtil.nextInt(1, 200))).addAll(builders);
+          sb.category(Component.literal("default " + MathUtil.nextInt(1, 200))).addAll(builders);
         }
 
         System.out.println(CONFIG);

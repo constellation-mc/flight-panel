@@ -3,15 +3,15 @@ package me.melontini.flightpanel.api.builders;
 import com.google.common.collect.ImmutableList;
 import java.util.*;
 import me.melontini.flightpanel.api.builders.elements.BaseElementBuilder;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 public class CategoryBuilder implements List<BaseElementBuilder<?, ?, ?>> {
 
-  private final Text title;
+  private final Component title;
   private final List<BaseElementBuilder<?, ?, ?>> list = new ArrayList<>();
 
-  public CategoryBuilder(Text text) {
+  public CategoryBuilder(Component text) {
     this.title = text;
   }
 
@@ -20,7 +20,7 @@ public class CategoryBuilder implements List<BaseElementBuilder<?, ?, ?>> {
     return this;
   }
 
-  public Text title() {
+  public Component title() {
     return this.title;
   }
 

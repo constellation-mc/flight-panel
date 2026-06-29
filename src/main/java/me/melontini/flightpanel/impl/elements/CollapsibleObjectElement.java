@@ -7,19 +7,19 @@ import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.SquareData;
 import me.melontini.flightpanel.impl.widgets.IconDrawer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
 public class CollapsibleObjectElement<T>
     extends AbstractValuedElement<T, CollapsibleObjectElement<T>> {
 
-  private static final Identifier ICONS =
-      Identifier.of("flight-panel", "textures/gui/gui_icons.png");
+  private static final ResourceLocation ICONS =
+      ResourceLocation.tryBuild("flight-panel", "textures/gui/gui_icons.png");
 
   private final List<AbstractConfigElement<?, ?>> children;
 
@@ -69,15 +69,15 @@ public class CollapsibleObjectElement<T>
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     super.render(context, mouseX, mouseY, delta);
     this.visibleChildren.forEach(element -> element.render(context, mouseX, mouseY, delta));
 
     var dn = displayName(mouseX, mouseY);
     int color =
-        Optional.ofNullable(dn.getStyle().getColor()).map(TextColor::getRgb).orElse(-1);
+        Optional.ofNullable(dn.getStyle().getColor()).map(TextColor::getValue).orElse(-1);
     this.iconDrawer.color(color).renderIcon(context, true);
-    context.drawTextWithShadow(client.textRenderer, dn, pos.x() + 12 + 4, pos.y() + 7, -1);
+    context.drawString(client.font, dn, pos.x() + 12 + 4, pos.y() + 7, -1);
   }
 
   @Override
@@ -96,9 +96,7 @@ public class CollapsibleObjectElement<T>
   public boolean onWidgetClicked(double mouseX, double mouseY, int button) {
     if (button != 0) return false;
     collapsed = !collapsed;
-    client
-        .getSoundManager()
-        .play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     this.proxy().rebuildPositions();
     return true;
   }
@@ -121,14 +119,14 @@ public class CollapsibleObjectElement<T>
   }
 
   @Override
-  public @Nullable Text getElementError() {
-    List<Text> texts = this.children.stream()
+  public @Nullable Component getElementError() {
+    List<Component> texts = this.children.stream()
         .map(AbstractConfigElement::getElementError)
         .filter(Objects::nonNull)
         .toList();
 
     if (texts.size() == 1) return texts.get(0);
-    if (texts.size() > 1) return Text.translatable("service.flight-panel.error.list.multiple");
+    if (texts.size() > 1) return Component.translatable("service.flight-panel.error.list.multiple");
     return null;
   }
 

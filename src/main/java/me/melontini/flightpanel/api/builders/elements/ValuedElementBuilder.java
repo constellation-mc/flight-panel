@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.DataType;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public abstract class ValuedElementBuilder<
         T, E extends AbstractValuedElement<T, E>, S extends ValuedElementBuilder<T, E, S>>
@@ -14,7 +14,7 @@ public abstract class ValuedElementBuilder<
   public static final DataType<Supplier<Object>> DEFAULT_VALUE = DataType.of();
   public static final DataType<Consumer<Object>> SAVE_FUNCTION = DataType.of();
 
-  protected ValuedElementBuilder(Text elementName, T value) {
+  protected ValuedElementBuilder(Component elementName, T value) {
     super(elementName);
     value(value);
   }

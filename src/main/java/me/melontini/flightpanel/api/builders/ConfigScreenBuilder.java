@@ -4,9 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.NonNull;
 import me.melontini.flightpanel.impl.ConfigScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 public class ConfigScreenBuilder {
@@ -15,12 +15,12 @@ public class ConfigScreenBuilder {
     return new ConfigScreenBuilder();
   }
 
-  private Text title = Text.empty();
+  private Component title = Component.empty();
   private Screen parent = null;
   private Runnable saveFunction = () -> {};
-  private final Map<Text, CategoryBuilder> categories = new LinkedHashMap<>();
+  private final Map<Component, CategoryBuilder> categories = new LinkedHashMap<>();
 
-  public ConfigScreenBuilder title(@NonNull Text title) {
+  public ConfigScreenBuilder title(@NonNull Component title) {
     this.title = title;
     return this;
   }
@@ -35,14 +35,14 @@ public class ConfigScreenBuilder {
     return this;
   }
 
-  public CategoryBuilder category(Text title) {
+  public CategoryBuilder category(Component title) {
     return categories.computeIfAbsent(title, CategoryBuilder::new);
   }
 
   public ConfigScreen build() {
     return new ConfigScreen(
         title,
-        parent == null ? MinecraftClient.getInstance().currentScreen : parent,
+        parent == null ? Minecraft.getInstance().screen : parent,
         categories,
         saveFunction);
   }

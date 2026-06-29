@@ -5,7 +5,7 @@ import java.math.RoundingMode;
 import me.melontini.flightpanel.api.builders.elements.numbers.DoubleSliderBuilder;
 import me.melontini.flightpanel.api.builders.elements.numbers.FloatSliderBuilder;
 import me.melontini.flightpanel.api.elements.AbstractNumberSliderElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class FloatSliderElement extends AbstractNumberSliderElement<Float, FloatSliderElement> {
 
@@ -20,8 +20,8 @@ public class FloatSliderElement extends AbstractNumberSliderElement<Float, Float
   }
 
   @Override
-  protected Text getMessage(Float value) {
-    return Text.literal(Float.toString(value));
+  protected Component getMessage(Float value) {
+    return Component.literal(Float.toString(value));
   }
 
   @Override

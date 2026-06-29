@@ -7,23 +7,23 @@ import java.util.function.Supplier;
 import lombok.EqualsAndHashCode;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.util.DataType;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 @EqualsAndHashCode
 public abstract class BaseElementBuilder<
     T, E extends AbstractConfigElement<T, E>, S extends BaseElementBuilder<T, E, S>> {
 
-  public static DataType<Text> ELEMENT_NAME = DataType.of();
+  public static DataType<Component> ELEMENT_NAME = DataType.of();
   public static DataType<Boolean> REQUIRES_RESTART = DataType.of();
-  public static DataType<List<Text>> DESCRIPTION = DataType.of();
+  public static DataType<List<Component>> DESCRIPTION = DataType.of();
 
   private final IdentityHashMap<DataType<?>, Object> data = new IdentityHashMap<>();
 
-  protected BaseElementBuilder(Text elementName) {
+  protected BaseElementBuilder(Component elementName) {
     this.data(ELEMENT_NAME, elementName);
   }
 
-  public S elementName(Text text) {
+  public S elementName(Component text) {
     return data(ELEMENT_NAME, text);
   }
 
@@ -35,11 +35,11 @@ public abstract class BaseElementBuilder<
     return requireRestart(true);
   }
 
-  public S description(Text text) {
+  public S description(Component text) {
     return data(DESCRIPTION, Collections.singletonList(text));
   }
 
-  public S description(List<Text> texts) {
+  public S description(List<Component> texts) {
     return data(DESCRIPTION, texts);
   }
 

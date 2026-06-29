@@ -10,13 +10,18 @@ import lombok.experimental.Accessors;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.api.util.ConfigScreenProxy;
 import me.melontini.flightpanel.api.util.SquareData;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.util.Mth;
 
 @Accessors(fluent = true)
-public class ConfigElementListWidget extends AbstractParentElement implements Drawable, Selectable {
+public class ConfigElementListWidget extends AbstractContainerEventHandler
+    implements Renderable, NarratableEntry {
 
   @Setter
   public int x, y, width, height;
@@ -43,7 +48,7 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
     h += 1;
     this.maxScrollPos = h > y + height ? h - (y + height) : 0;
     int oldScrollPos = this.scrollPos;
-    this.scrollPos = MathHelper.clamp(this.scrollPos, -this.maxScrollPos, 0);
+    this.scrollPos = Mth.clamp(this.scrollPos, -this.maxScrollPos, 0);
 
     if (oldScrollPos != this.scrollPos) {
       this.rebuildPositions();
@@ -58,12 +63,11 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     context.fill(x, y, x + width, y + height, ColorUtil.toColor(0, 0, 0, 90));
 
     if (this.maxScrollPos > 0) {
-      int scroller =
-          MathHelper.clamp((height * height) / this.maxScrollPos, height / 4, height / 2);
+      int scroller = Mth.clamp((height * height) / this.maxScrollPos, height / 4, height / 2);
       int scrollerPos = Math.abs(this.scrollPos) * (height - scroller) / this.maxScrollPos + y;
 
       int x = this.x + width;
@@ -87,7 +91,7 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
     if (!this.isMouseOver(mouseX, mouseY)) return false;
     if (super.mouseScrolled(mouseX, mouseY, amount)) return true;
 
-    int scrollPos = MathHelper.clamp(this.scrollPos + (int) (amount * 10), -this.maxScrollPos, 0);
+    int scrollPos = Mth.clamp(this.scrollPos + (int) (amount * 10), -this.maxScrollPos, 0);
     if (this.scrollPos != scrollPos) {
       this.scrollPos = scrollPos;
       this.rebuildPositions();
@@ -102,10 +106,10 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
     if (this.maxScrollPos <= 0 || button != 0 || !lastDrag)
       return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 
-    int j = MathHelper.clamp(((height * height) / this.maxScrollPos), height / 4, height / 2);
+    int j = Mth.clamp(((height * height) / this.maxScrollPos), height / 4, height / 2);
     double e = Math.max(1.0, (double) this.maxScrollPos / (height - j));
 
-    int scrollPos = MathHelper.clamp((int) (this.scrollPos - (deltaY * e)), -this.maxScrollPos, 0);
+    int scrollPos = Mth.clamp((int) (this.scrollPos - (deltaY * e)), -this.maxScrollPos, 0);
     if (this.scrollPos != scrollPos) {
       this.scrollPos = scrollPos;
       this.rebuildPositions();
@@ -156,7 +160,7 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
   }
 
   @Override
-  public Optional<Element> hoveredElement(double mouseX, double mouseY) {
+  public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
     if (!this.isMouseOver(mouseX, mouseY)) return Optional.empty();
 
     for (AbstractConfigElement<?, ?> element : this.visibleChildren) {
@@ -175,17 +179,17 @@ public class ConfigElementListWidget extends AbstractParentElement implements Dr
   }
 
   public ConfigScreenProxy proxy() {
-    if (MinecraftClient.getInstance().currentScreen instanceof ConfigScreenProxy csp) return csp;
+    if (Minecraft.getInstance().screen instanceof ConfigScreenProxy csp) return csp;
     throw new IllegalStateException();
   }
 
-  // TODO
+  // TODO narration + type
   @Override
-  public void appendNarrations(NarrationMessageBuilder builder) {}
+  public void updateNarration(NarrationElementOutput output) {}
 
   @Override
-  public SelectionType getType() {
-    return SelectionType.NONE;
+  public NarrationPriority narrationPriority() {
+    return NarrationPriority.NONE;
   }
 
   @Override

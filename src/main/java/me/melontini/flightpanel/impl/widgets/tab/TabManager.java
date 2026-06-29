@@ -4,37 +4,37 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class TabManager {
 
-  private Consumer<Text> onTabSelect;
+  private Consumer<Component> onTabSelect;
 
-  @Nullable private Text currentTab;
+  @Nullable private Component currentTab;
 
-  public TabManager(Consumer<Text> onTabSelect) {
+  public TabManager(Consumer<Component> onTabSelect) {
     this.onTabSelect = onTabSelect;
   }
 
-  public void setCurrentTab(Text tab, boolean clickSound) {
+  public void setCurrentTab(Component tab, boolean clickSound) {
     if (!Objects.equals(this.currentTab, tab)) {
       this.currentTab = tab;
       this.onTabSelect.accept(tab);
 
       if (clickSound) {
-        MinecraftClient.getInstance()
+        Minecraft.getInstance()
             .getSoundManager()
-            .play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
       }
     }
   }
 
-  @Nullable public Text getCurrentTab() {
+  @Nullable public Component getCurrentTab() {
     return this.currentTab;
   }
 }

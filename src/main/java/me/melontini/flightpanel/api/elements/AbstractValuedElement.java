@@ -14,10 +14,10 @@ import lombok.experimental.Accessors;
 import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
 import me.melontini.flightpanel.api.util.SquareData;
 import me.melontini.flightpanel.impl.widgets.IconDrawer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,8 +27,8 @@ import org.jetbrains.annotations.Nullable;
 public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T, S>>
     extends AbstractConfigElement<T, S> {
 
-  private static final Identifier ICONS =
-      Identifier.of("flight-panel", "textures/gui/gui_icons.png");
+  private static final ResourceLocation ICONS =
+      ResourceLocation.tryBuild("flight-panel", "textures/gui/gui_icons.png");
 
   private T original;
   private T value;
@@ -40,7 +40,7 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
   private List<BiConsumer<T, T>> changeListeners = null;
 
   protected final BiFunction<T, T, Boolean> deepEquals;
-  protected final ButtonWidget resetButton;
+  protected final Button resetButton;
   private final IconDrawer iconDrawer;
 
   public AbstractValuedElement(ValuedElementBuilder<T, S, ?> builder) {
@@ -56,22 +56,22 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
     this.modified = !equals(original, value);
 
     this.resetButton =
-        new ButtonWidget(
+        new Button(
             0,
             0,
             20,
             20,
-            Text.empty(),
+            Component.empty(),
             button -> {
               if (defaultValue != null)
                 AbstractValuedElement.this.resetToDefault(defaultValue.get());
             },
             Supplier::get) {
           @Override
-          protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
-            this.hovered = this.hovered
+          protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+            this.isHovered = this.isHovered
                 && AbstractValuedElement.this.proxy().isPointWithinListBounds(mouseX, mouseY);
-            super.renderButton(context, mouseX, mouseY, delta);
+            super.renderWidget(context, mouseX, mouseY, delta);
           }
         };
     this.resetButton.visible = defaultValue != null;
@@ -105,7 +105,7 @@ public abstract class AbstractValuedElement<T, S extends AbstractValuedElement<T
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     super.render(context, mouseX, mouseY, delta);
     this.resetButton.render(context, mouseX, mouseY, delta);
 

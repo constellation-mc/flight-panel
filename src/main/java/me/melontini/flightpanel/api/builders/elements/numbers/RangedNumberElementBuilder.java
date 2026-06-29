@@ -3,7 +3,7 @@ package me.melontini.flightpanel.api.builders.elements.numbers;
 import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.DataType;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public abstract class RangedNumberElementBuilder<
         T extends Number,
@@ -14,7 +14,7 @@ public abstract class RangedNumberElementBuilder<
   public static final DataType<Number> MIN = DataType.of();
   public static final DataType<Number> MAX = DataType.of();
 
-  protected RangedNumberElementBuilder(Text elementName, T value) {
+  protected RangedNumberElementBuilder(Component elementName, T value) {
     super(elementName, value);
   }
 

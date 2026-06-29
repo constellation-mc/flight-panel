@@ -8,7 +8,7 @@ import me.melontini.flightpanel.api.builders.elements.ValuedElementBuilder;
 import me.melontini.flightpanel.api.elements.AbstractValuedElement;
 import me.melontini.flightpanel.api.util.DataType;
 import me.melontini.flightpanel.impl.elements.collections.NestedListElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class NestedListBuilder<T>
     extends ValuedElementBuilder<List<T>, NestedListElement<T>, NestedListBuilder<T>> {
@@ -30,7 +30,7 @@ public class NestedListBuilder<T>
   }
 
   public static <T> NestedListBuilder<T> create(
-      Text elementName,
+      Component elementName,
       List<T> value,
       BiFunction<T, NestedListElement<T>, AbstractValuedElement<T, ?>> cellFactory,
       Supplier<T> defaultElementValue) {
@@ -38,7 +38,7 @@ public class NestedListBuilder<T>
   }
 
   protected NestedListBuilder(
-      Text elementName,
+      Component elementName,
       List<T> value,
       BiFunction<T, NestedListElement<T>, AbstractValuedElement<T, ?>> cellFactory,
       Supplier<T> defaultElementValue) {

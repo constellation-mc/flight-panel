@@ -7,24 +7,24 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.melontini.flightpanel.api.elements.AbstractConfigElement;
 import me.melontini.flightpanel.impl.util.TextUtil;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 @Accessors(fluent = true)
-public class OptionInfoWidget implements Drawable, Element, Selectable {
+public class OptionInfoWidget implements Renderable, GuiEventListener, NarratableEntry {
 
-  public static final Text NOTHING_SELECTED = Text.translatable(
+  public static final Component NOTHING_SELECTED = Component.translatable(
           "service.flight-panel.widget.option_info.nothing_selected")
-      .formatted(Formatting.GRAY);
+      .withStyle(ChatFormatting.GRAY);
 
-  private final MinecraftClient client = MinecraftClient.getInstance();
+  private final Minecraft client = Minecraft.getInstance();
 
   @Getter
   @Setter
@@ -33,8 +33,8 @@ public class OptionInfoWidget implements Drawable, Element, Selectable {
   @Getter
   private AbstractConfigElement<?, ?> display;
 
-  private List<OrderedText> optionTitle;
-  private List<OrderedText> optionDescription;
+  private List<FormattedCharSequence> optionTitle;
+  private List<FormattedCharSequence> optionDescription;
 
   public OptionInfoWidget(int x, int y, int width, int height) {
     this.x = x;
@@ -44,24 +44,24 @@ public class OptionInfoWidget implements Drawable, Element, Selectable {
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     int y = this.y + 8;
     context.enableScissor(this.x, this.y, this.x + this.width, this.y + this.height);
     if (display == null) {
-      context.drawText(client.textRenderer, NOTHING_SELECTED, x + 8, y, -1, true);
+      context.drawString(client.font, NOTHING_SELECTED, x + 8, y, -1, true);
       context.disableScissor();
       return;
     }
 
-    for (OrderedText text : this.optionTitle) {
-      context.drawText(client.textRenderer, text, x + 8, y, -1, true);
+    for (FormattedCharSequence text : this.optionTitle) {
+      context.drawString(client.font, text, x + 8, y, -1, true);
       y += 9;
     }
 
     if (!optionDescription.isEmpty()) {
       y += 6;
-      for (OrderedText text : this.optionDescription) {
-        context.drawText(client.textRenderer, text, x + 8, y, -1, true);
+      for (FormattedCharSequence text : this.optionDescription) {
+        context.drawString(client.font, text, x + 8, y, -1, true);
         y += 11;
       }
     }
@@ -76,10 +76,10 @@ public class OptionInfoWidget implements Drawable, Element, Selectable {
       return;
     }
     this.display = display;
-    this.optionTitle = client.textRenderer.wrapLines(
-        display.elementName().copy().formatted(Formatting.BOLD), width - 8 - 8);
+    this.optionTitle = client.font.split(
+        display.elementName().copy().withStyle(ChatFormatting.BOLD), width - 8 - 8);
     this.optionDescription = display.description().stream()
-        .map(text -> client.textRenderer.wrapLines(text, width - 8 - 8))
+        .map(text -> client.font.split(text, width - 8 - 8))
         .flatMap(Collection::stream)
         .toList();
   }
@@ -93,10 +93,10 @@ public class OptionInfoWidget implements Drawable, Element, Selectable {
   }
 
   @Override
-  public SelectionType getType() {
-    return SelectionType.NONE;
+  public NarrationPriority narrationPriority() {
+    return NarrationPriority.NONE;
   }
 
   @Override
-  public void appendNarrations(NarrationMessageBuilder builder) {}
+  public void updateNarration(NarrationElementOutput output) {}
 }

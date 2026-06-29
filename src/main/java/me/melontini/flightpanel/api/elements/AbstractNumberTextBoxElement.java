@@ -5,7 +5,7 @@ import dev.zenfyr.pulsar.api.util.tuple.Tuple;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import me.melontini.flightpanel.api.builders.elements.numbers.RangedNumberElementBuilder;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 @Accessors(fluent = true)
 public abstract class AbstractNumberTextBoxElement<
@@ -26,19 +26,19 @@ public abstract class AbstractNumberTextBoxElement<
   protected abstract boolean validChar(char c);
 
   @Override
-  protected final Result<T, Text> convertFromString(String s) {
-    Result<T, Text> result = convertToNumber(s);
+  protected final Result<T, Component> convertFromString(String s) {
+    Result<T, Component> result = convertToNumber(s);
     if (result.error().isPresent()) return result;
     T num = result.value().orElseThrow(IllegalStateException::new);
 
     if (num.compareTo(max) > 0)
-      return Result.error(Text.translatable("service.flight-panel.error.number.max", max()));
+      return Result.error(Component.translatable("service.flight-panel.error.number.max", max()));
     if (num.compareTo(min) < 0)
-      return Result.error(Text.translatable("service.flight-panel.error.number.min", min()));
+      return Result.error(Component.translatable("service.flight-panel.error.number.min", min()));
     return Result.ok(num);
   }
 
-  protected abstract Result<T, Text> convertToNumber(String s);
+  protected abstract Result<T, Component> convertToNumber(String s);
 
   @Override
   protected String sanitizeString(String s) {

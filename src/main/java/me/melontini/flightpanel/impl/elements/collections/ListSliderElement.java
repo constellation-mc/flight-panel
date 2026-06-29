@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.function.Function;
 import me.melontini.flightpanel.api.builders.elements.collections.ListSliderBuilder;
 import me.melontini.flightpanel.api.elements.AbstractSliderElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class ListSliderElement<T> extends AbstractSliderElement<T, ListSliderElement<T>> {
 
   private final List<T> values;
-  private final Function<T, Text> textifier;
+  private final Function<T, Component> textifier;
 
   public ListSliderElement(ListSliderBuilder<T> builder) {
     super(builder);
@@ -19,7 +19,7 @@ public class ListSliderElement<T> extends AbstractSliderElement<T, ListSliderEle
   }
 
   @Override
-  protected Text getMessage(T value) {
+  protected Component getMessage(T value) {
     return this.textifier.apply(value);
   }
 

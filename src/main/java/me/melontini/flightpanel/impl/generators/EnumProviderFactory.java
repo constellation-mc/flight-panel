@@ -17,8 +17,8 @@ import me.melontini.flightpanel.api.generators.context.FactoryContext;
 import me.melontini.flightpanel.api.generators.context.ProviderContext;
 import me.melontini.flightpanel.impl.elements.collections.ListButtonElement;
 import me.melontini.flightpanel.impl.elements.collections.ListSliderElement;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.Text;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,13 +39,16 @@ public class EnumProviderFactory implements GuiProviderFactory {
     return Result.ok((GuiProvider<T, A, S>) new EnumButtonProvider<>(values));
   }
 
-  public static <T extends Enum<T>> Function<T, Text> nameProvider(String i18n, Class<?> type) {
+  public static <T extends Enum<T>> Function<T, Component> nameProvider(
+      String i18n, Class<?> type) {
     return t -> {
       String remainingKey = i18n.contains(".option")
           ? i18n.substring(0, i18n.indexOf(".option") + ".option".length())
           : i18n;
       String classKey = String.format("%s.%s.%s", remainingKey, type.getSimpleName(), t.name());
-      return I18n.hasTranslation(classKey) ? Text.translatable(classKey) : Text.literal(t.name());
+      return I18n.exists(classKey)
+          ? Component.translatable(classKey)
+          : Component.literal(t.name());
     };
   }
 

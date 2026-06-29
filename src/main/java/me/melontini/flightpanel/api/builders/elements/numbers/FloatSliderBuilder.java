@@ -2,16 +2,17 @@ package me.melontini.flightpanel.api.builders.elements.numbers;
 
 import java.math.RoundingMode;
 import me.melontini.flightpanel.impl.elements.numbers.FloatSliderElement;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class FloatSliderBuilder
     extends RangedNumberElementBuilder<Float, FloatSliderElement, FloatSliderBuilder> {
 
-  public static FloatSliderBuilder create(Text elementName, float value, float min, float max) {
+  public static FloatSliderBuilder create(
+      Component elementName, float value, float min, float max) {
     return new FloatSliderBuilder(elementName, value, min, max);
   }
 
-  protected FloatSliderBuilder(Text elementName, float value, float min, float max) {
+  protected FloatSliderBuilder(Component elementName, float value, float min, float max) {
     super(elementName, value);
     this.min(min);
     this.max(max);
